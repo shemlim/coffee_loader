@@ -123,11 +123,6 @@ Pygments==2.10.0
 pymssql==2.2.1
 pyodbc==4.0.30
 pyorbital==1.6.0
-pyparsing==2.4.7
-pywin32==302
-pywinpty==1.1.4
-PyYAML==6.0
-pyzmq==22.3.0
 redis==3.5.3
 regex==2021.11.10
 requests==2.25.1
