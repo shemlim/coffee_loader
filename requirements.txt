@@ -2,3 +2,4 @@ Flask==1.1.2
 numpy==1.20.3
 pandas==1.2.4
 pymssql==2.2.1
+gunicorn==19.0.0
