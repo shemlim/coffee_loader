@@ -3,7 +3,7 @@
 # logging.basicConfig(level=logging.ERROR,filename=path_err+"error.log",filemode='w')
 
 
-from flask import Flask
+from flask import Flask,request,render_template,url_for
 # from model.turicreate_file import model_predict,model_predict_popularity,connected,recommend
 # from model.credit_scoring import load_all,getEzeepasar_API
 import numpy as np
@@ -78,14 +78,20 @@ logging.basicConfig(stream=sys.stderr)
 
 @app.route('/')
 def success():
-    print("nice")
-    create_db()
-    insert_db()
-    all_data = select_db()
+    # create_db()
+    # insert_db()
+    # all_data = select_db()
 
 
-    return str(all_data)
-    # return "nice"
+    # return str(all_data)
+    return "nice"
+
+@app.route('/getcoffee/<name>',methods=['GET'])
+def coffee_getter(name):
+    img_url = url_for('static', filename='upload_photo/coffee2.jpg')
+    img_url2 = url_for('static', filename='upload_photo/coffee1.jpg')
+
+    return render_template("ordercoffee.html",name=name,img_url = img_url,img_url2 = img_url2)
     
 if __name__ == '__main__':
     app.run()

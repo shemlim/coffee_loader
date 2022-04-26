@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+
+{% block content %}
+
+<!-- Laman utk VIEW template, refer ke flask modul utk halaman html -->
+
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Coffee is Love, Coffee is Live</title>
+    </head>
+
+
+    <body>
+        <b><h1>Hi table {{ name }}</h1></b>
+        <!-- <img src= "{{ img_url }}" alt="Latte" height="700" width="1500"> -->
+        <table>
+            <tr>
+                <td>Please Choose you coffee</td>
+            </tr>
+            <tr>
+                <td>Latte</td>
+                <td><img src= "{{ img_url2 }}" alt="Latte" height="150" width="300"></td>
+                
+                <td>
+                    <div class="qty mt-5">
+                        
+                        <input type="number" class="count" name="qty" value="1">
+                        
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </body>
+    
+
+</html>
+
+{% endblock %}
