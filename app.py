@@ -16,13 +16,14 @@ import logging
 import pandas as pd
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://postgres:Shemlim12#@localhost:5432/usersantuy'
+# postgres://modwefcfitstlx:bb286cf8d0d6adfc726eff2ee3ab8339fd8421420bd3052bc2c784303a562112@ec2-54-80-123-146.compute-1.amazonaws.com:5432/d54sfhkmvrsn1h
 
 def connection():
     conn = psycopg2.connect(
-        host="localhost",
-        database="usersantuy",
-        user='postgres',
-        password='Shemlim12#')
+        host="ec2-54-80-123-146.compute-1.amazonaws.com",
+        database="d54sfhkmvrsn1h",
+        user='modwefcfitstlx',
+        password='bb286cf8d0d6adfc726eff2ee3ab8339fd8421420bd3052bc2c784303a562112')
     cur = conn.cursor()
 
     return [conn,cur]
