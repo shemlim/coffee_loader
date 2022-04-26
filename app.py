@@ -79,13 +79,13 @@ logging.basicConfig(stream=sys.stderr)
 @app.route('/')
 def success():
     print("nice")
-    # create_db()
-    # insert_db()
-    # all_data = select_db()
+    create_db()
+    insert_db()
+    all_data = select_db()
 
 
-    # return str(all_data)
-    return "nice"
+    return str(all_data)
+    # return "nice"
     
 if __name__ == '__main__':
     app.run()
