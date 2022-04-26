@@ -159,7 +159,7 @@ def coffee_getter(name):
         
 
     # return str(d_cat_menu)
-    return render_template("ordercoffee.html",menu_dict=d_cat_menu)
+    return render_template("ordercoffee.html",menu_dict=d_cat_menu,list=list)
 
 
 

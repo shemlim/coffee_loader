@@ -10,6 +10,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
     <style>
         
         #myBtn {
@@ -46,7 +47,7 @@
         {% for x,y in menu_dict.items() %}
             {% set min_btn = x + "_btn_m" %}
             {% set plus_btn = x + "_btn" %}
-            
+
 
             <table>
                 <!-- To add another menu -->
@@ -71,12 +72,39 @@
             <hr>
             
         {% endfor %}
+        
+        <input type="hidden" id="all_input" value="{{ ','.join(list(menu_dict.keys())) }}">
+        <button onclick="submitFunc()" id="myBtn" title="Go to top">Submit</button>
 
 
-        <button onclick="topFunction()" id="myBtn" title="Go to top">Submit</button>
         {% block javascript %}
             <script>
+                
 
+                function submitFunc(){
+                    hidden_value = document.getElementById("all_input").value
+                    hidden_value = hidden_value.split(",")
+                    text = '';
+                    for (let i = 0; i < hidden_value.length; i++) {
+                        
+                        text += hidden_value[i] + ":" + document.getElementById(hidden_value[i]).value + ",";
+                    }
+                    swal({
+                        title: "Are you already checked the order twice?",
+                        text: "Once ordered, you can not change it anymore!\n" + text,
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                        })
+                        .then((willDelete) => {
+                        if (willDelete) {
+                            swal("Your coffee order has been listed!", {
+                            icon: "success",
+                            });
+                        } 
+                        });
+                }
+                
                 function addCounter(btn_id) {
                     id = btn_id.split("_")[0]
                     counter_val = parseInt(document.getElementById(id).value)
