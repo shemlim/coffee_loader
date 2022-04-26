@@ -1,0 +1,21 @@
+<table>
+    <!-- To add another menu -->
+    <tr>
+        <td><h1 style="font-family: 'Brush Script MT', cursive;font-size: 3em;">{{ x }}</h1></td>
+    </tr>
+    <tr>
+        <td><img src= "{{ y['image'] }}" alt="Mocca" height="200" width="250"></td>
+        <td>
+            <button type="button" class="btn btn-default btn-number" id="qty2_btn_m" onclick="minusCounter(this.id)" disabled="disabled" data-type="minus" data-field="quant[1]">
+                <span name="minus">&#8722;</span>
+            </button>
+            <input type="number" class="count" id="qty2" value="0" style="width: 2em" disabled="disabled">
+            <button type="button" class="btn btn-default btn-number" id="qty2_btn" onclick="addCounter(this.id)"
+                    data-type="minus" data-field="quant[1]">
+                <span name="plus">&#43;</span>
+            </button>
+        </td>
+    </tr>
+    <!-- To add another menu -->
+</table>
+<hr>
