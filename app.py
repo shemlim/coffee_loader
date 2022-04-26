@@ -2,7 +2,7 @@
 # path_err = "/home/wsladmin/Flask_EzeePasar/"
 # logging.basicConfig(level=logging.ERROR,filename=path_err+"error.log",filemode='w')
 
-import gunicorn
+
 from flask import Flask
 # from model.turicreate_file import model_predict,model_predict_popularity,connected,recommend
 # from model.credit_scoring import load_all,getEzeepasar_API
