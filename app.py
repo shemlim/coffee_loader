@@ -10,7 +10,7 @@ import numpy as np
 import time
 # from sklearn.model_selection import train_test_split
 import psycopg2
-import sys
+import sys,os
 import logging
 
 import pandas as pd
@@ -88,10 +88,14 @@ def success():
 
 @app.route('/getcoffee/<name>',methods=['GET'])
 def coffee_getter(name):
+
+    
     img_url = url_for('static', filename='upload_photo/coffee2.jpg')
     img_url2 = url_for('static', filename='upload_photo/coffee1.jpg')
+    img_url3 = url_for('static', filename='upload_photo/coffee3.jpg')
 
-    return render_template("ordercoffee.html",name=name,img_url = img_url,img_url2 = img_url2)
+
+    return render_template("ordercoffee.html",name=name,img_url = img_url,img_url2 = img_url2,img_url3 = img_url3)
     
 if __name__ == '__main__':
     app.run()

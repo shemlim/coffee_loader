@@ -9,7 +9,6 @@
     <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Coffee is Love, Coffee is Live</title>
@@ -18,23 +17,48 @@
 
     <body>
         <b><h1>Hi table {{ name }}</h1></b>
+        <b><h2>Please Choose you coffee</h2></b>
         <!-- <img src= "{{ img_url }}" alt="Latte" height="700" width="1500"> -->
         <table>
+            
+            <!-- To add another menu -->
             <tr>
-                <td>Please Choose you coffee</td>
+                <td><h1>1. Latte</h1></td>
             </tr>
             <tr>
-                <td>Latte</td>
                 <td><img src= "{{ img_url2 }}" alt="Latte" height="150" width="300"></td>
-                
                 <td>
-                    <div class="qty mt-5">
-                        
-                        <input type="number" class="count" name="qty" value="1">
-                        
-                    </div>
+                    <button type="button" class="btn btn-default btn-number" disabled="disabled" data-type="minus" data-field="quant[1]">
+                        <span name="minus">&#8722;</span>
+                    </button>
+                    <input type="number" class="count" name="qty" value="1" style="width: 2em">
+                    <button type="button" class="btn btn-default btn-number" disabled="disabled" data-type="minus" data-field="quant[1]">
+                        <span name="plus">&#43;</span>
+                    </button>
                 </td>
             </tr>
+            <!-- To add another menu -->
+
+            <!-- To add another menu -->
+            <tr>
+                <td><h1>2. Mocca</h1></td>
+            </tr>
+            <tr>
+                <td><img src= "{{ img_url3 }}" alt="Mocca" height="250" width="300"></td>
+                <td>
+                    <button type="button" class="btn btn-default btn-number" disabled="disabled" data-type="minus" data-field="quant[1]">
+                        <span name="minus">&#8722;</span>
+                    </button>
+                    <input type="number" class="count" name="qty" value="1" style="width: 2em">
+                    <button type="button" class="btn btn-default btn-number" disabled="disabled" data-type="minus" data-field="quant[1]">
+                        <span name="plus">&#43;</span>
+                    </button>
+                </td>
+            </tr>
+            <!-- To add another menu -->
+            
+            
+
         </table>
     </body>
     
