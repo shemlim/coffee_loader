@@ -17,13 +17,15 @@ import pandas as pd
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://postgres:Shemlim12#@localhost:5432/usersantuy'
 # postgres://modwefcfitstlx:bb286cf8d0d6adfc726eff2ee3ab8339fd8421420bd3052bc2c784303a562112@ec2-54-80-123-146.compute-1.amazonaws.com:5432/d54sfhkmvrsn1h
+# postgres://mqhureykqyyrfb:4203d70494bbdc600a37641ffc08bbfba4e48ce6549b1285c042e1c56c76030f@ec2-52-86-56-90.compute-1.amazonaws.com:5432/demc2tb1r0urm0
+
 
 def connection():
     conn = psycopg2.connect(
-        host="ec2-54-80-123-146.compute-1.amazonaws.com",
-        database="d54sfhkmvrsn1h",
-        user='modwefcfitstlx',
-        password='bb286cf8d0d6adfc726eff2ee3ab8339fd8421420bd3052bc2c784303a562112')
+        host="ec2-52-86-56-90.compute-1.amazonaws.com",
+        database="demc2tb1r0urm0",
+        user='mqhureykqyyrfb',
+        password='4203d70494bbdc600a37641ffc08bbfba4e48ce6549b1285c042e1c56c76030f')
     cur = conn.cursor()
 
     return [conn,cur]
