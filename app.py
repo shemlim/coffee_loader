@@ -79,7 +79,7 @@ logging.basicConfig(stream=sys.stderr)
 def success():
     print("nice")
     create_db()
-    # insert_db()
+    insert_db()
     all_data = select_db()
 
 
