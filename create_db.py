@@ -30,11 +30,10 @@ def select_cat_menu():
 def connection():
     # For server
     conn = psycopg2.connect(
-        host="ec2-52-86-56-90.compute-1.amazonaws.com",
-        database="demc2tb1r0urm0",
-        user='mqhureykqyyrfb',
-        password='4203d70494bbdc600a37641ffc08bbfba4e48ce6549b1285c042e1c56c76030f',
-        sslmode='require')
+        host="ec2-34-194-73-236.compute-1.amazonaws.com",
+        database="dcluovhf5udvoh",
+        user='vjrkfvpclacsbk',
+        password='dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624')
 
     # For Local
     # conn = psycopg2.connect(
