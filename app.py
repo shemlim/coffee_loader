@@ -258,23 +258,7 @@ def barista_finish_order():
 @app.route("/waiter_order",methods=['GET'])
 @login_required
 def waiter_order():
-    try:
-        print("im here")
-        cap=cv2.VideoCapture(0)
-        detector = cv2.QRCodeDetector()
-
-        while True:
-            _,img = cap.read()
-            data, _,b = detector.detectAndDecode(img)
-            if data:
-                a=data
-                break
-            cv2.imshow("QRCODEscanner", img)    
-            if cv2.waitKey(1) == ord("q"):
-                break
-        return str(a)
-    except Exception as e:
-        return str(e)
+    return ''
 
 # Function for waiter #
 
