@@ -8,7 +8,6 @@ from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy 
 from flask_login import UserMixin
 from sqlalchemy import Table, create_engine, null
-import cv2
 from datetime import timedelta,datetime
 
 
@@ -258,7 +257,7 @@ def barista_finish_order():
 @app.route("/waiter_order",methods=['GET'])
 @login_required
 def waiter_order():
-    return ''
+    return render_template('cth.html')
 
 # Function for waiter #
 
