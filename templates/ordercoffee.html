@@ -30,26 +30,25 @@
         }
         
         #myBtn:hover {
-        background-color: #555;
-        }
+            background-color: #555;
+            }
+        
     </style>
     <title>Coffee is Love, Coffee is Live</title>
     </head>
 
 
-    <body>
+    <body background="{{ url_for('static',filename='cool_photo.png') }}">
         <!-- <b><h1>Hi table {{ name }}</h1></b> -->
         <b><h2 style="text-align:center">Menu Coffee TJC PJ</h2></b>
+        <b><h2 style="text-align:center">Table {{ name }}</h2></b>
         <hr>
         <!-- <img src= "{{ img_url }}" alt="Latte" height="700" width="1500"> -->
         
-        <!-- To add another menu -->
         {% for x,y in menu_dict.items() %}
-            {% set min_btn = x + "_btn_m" %}
-            {% set plus_btn = x + "_btn" %}
-
-
-            <table>
+        {% set min_btn = x + "_btn_m" %}
+        {% set plus_btn = x + "_btn" %}
+        <table>
                 <!-- To add another menu -->
                 <tr>
                     <td><h1 style="font-family: 'Brush Script MT', cursive;font-size: 3em;">{{ x }}</h1></td>
@@ -72,39 +71,64 @@
             <hr>
             
         {% endfor %}
+        <form action="{{ url_for('recieve_coffee_order') }}"  method="POST" id="theForm">
+            <input type="hidden" id="all_input" name="all_input" value="{{ ','.join(list(menu_dict.keys())) }}">
+            <input type="hidden" id="table_order" name="table_order" value="{{ table_order }}">
+        </form>
+
+        <button onclick="submitFunc()" id="myBtn" title="Go to top" >Submit</button>
         
-        <input type="hidden" id="all_input" value="{{ ','.join(list(menu_dict.keys())) }}">
-        <button onclick="submitFunc()" id="myBtn" title="Go to top">Submit</button>
+        <!-- To add another menu -->
+        
 
 
         {% block javascript %}
             <script>
                 
-
                 function submitFunc(){
                     hidden_value = document.getElementById("all_input").value
                     hidden_value = hidden_value.split(",")
                     text = '';
+                    alert_text = '';
+                    total_val = 0;
                     for (let i = 0; i < hidden_value.length; i++) {
-                        
-                        text += hidden_value[i] + ":" + document.getElementById(hidden_value[i]).value + ",";
+                        coffee_val = document.getElementById(hidden_value[i]).value
+                        total_val += parseInt(coffee_val);
+                        text += coffee_val + "x" + hidden_value[i] + ",";
+                        if (coffee_val > 0){
+                            alert_text += coffee_val + "x " + hidden_value[i] + "\n";
+                        }
                     }
-                    swal({
+                    // document.getElementById("all_input").value = text + String(total_val) + "xTotal Order"
+                    console.log(document.getElementById("all_input").value)
+                    a = swal({
                         title: "Are you already checked the order twice?",
-                        text: "Once ordered, you can not change it anymore!\n" + text,
+                        text: "Once ordered, you can not change it anymore!\n" + alert_text,
                         icon: "warning",
                         buttons: true,
                         dangerMode: true,
                         })
                         .then((willDelete) => {
-                        if (willDelete) {
-                            swal("Your coffee order has been listed!", {
-                            icon: "success",
-                            });
-                        } 
+                            document.getElementById("all_input").value = text + String(total_val)
+                            if (willDelete) {
+                                swal("Your coffee order has been listed!", {
+                                icon: "success",
+                                });
+                                var timesRun = 0;
+                                var interval = setInterval(function(){
+                                    timesRun += 1;
+                                    if(timesRun === 1){
+                                        clearInterval(interval);
+                                    }
+                                    document.getElementById('theForm').submit();
+                                }, 1200); 
+                            }
                         });
+                    
                 }
                 
+               
+
                 function addCounter(btn_id) {
                     id = btn_id.split("_")[0]
                     counter_val = parseInt(document.getElementById(id).value)
