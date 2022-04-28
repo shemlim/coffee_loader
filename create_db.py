@@ -29,18 +29,18 @@ def select_cat_menu():
 
 def connection():
     # For server
-    # conn = psycopg2.connect(
-    #     host="ec2-52-86-56-90.compute-1.amazonaws.com",
-    #     database="demc2tb1r0urm0",
-    #     user='mqhureykqyyrfb',
-    #     password='4203d70494bbdc600a37641ffc08bbfba4e48ce6549b1285c042e1c56c76030f')
+    conn = psycopg2.connect(
+        host="ec2-52-86-56-90.compute-1.amazonaws.com",
+        database="demc2tb1r0urm0",
+        user='mqhureykqyyrfb',
+        password='4203d70494bbdc600a37641ffc08bbfba4e48ce6549b1285c042e1c56c76030f')
 
     # For Local
-    conn = psycopg2.connect(
-        host="localhost",
-        database="usersantuy",
-        user='postgres',
-        password='Shemlim12#')
+    # conn = psycopg2.connect(
+    #     host="localhost",
+    #     database="usersantuy",
+    #     user='postgres',
+    #     password='Shemlim12#')
 
     cur = conn.cursor()
 
