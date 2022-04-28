@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery3.6.0.js') }}"></script>
+    
+    <style>
+        
+        #myBtn {
+        
+        position: fixed;
+        bottom: 20px;
+        right: 30px;
+        z-index: 99;
+        font-size: 18px;
+        border: none;
+        outline: none;
+        background-color: red;
+        color: white;
+        cursor: pointer;
+        padding: 15px;
+        border-radius: 4px;
+        }
+        
+        #myBtn:hover {
+            background-color: #555;
+            }
+        
+    </style>
+    <title>
+        Barista Order List
+    </title>
+    </head>
+    {% block content %}
+        
+        {% if order_total > 0 %}
+            
+            {% set order_table = order_tr[1] %}
+            {% set order_details = order_tr[2] %}
+            {% set order_priority = order_tr[3]%}
+            {% set order_id = order_tr[0] %}
+
+            <h2 style="text-align:center">Hi, {{ name }}</h2>
+            <h1 style="text-align:center">Order for TABLE {{ order_table }} - Priority number {{order_priority}}</h1>
+            <button onclick="delFunc()">Delete this order</button>
+            <hr>
+            
+                {% for x in order_details.split(",") %}
+                    {% set value = x.split("x")[0] | int %}
+                    {% set img = x.split("x")[1] %}
+                    {% set img = 'upload_photo/'+img +".jpg" %}
+                    
+                    {% if value > 0 %}
+                    <table>
+                        <tr>
+                            <td rowspan="2">
+                                <img src= "{{ url_for('static',filename=img) }}" alt="Mocca" height="75" width="100">
+                                
+                            </td>
+                            
+                        </tr>
+                        <tr>
+                            <td><h1 style="font-family: 'Arial Black', cursive;font-size: 2em;">
+                                {{ 'x '.join(x.split("x")) }}</h1>
+                                
+                            </td>
+                            
+                        </tr>
+                    </table>
+                    <hr>
+                    {%endif%}
+                    
+                {% endfor %}
+            
+            
+        {% else %}
+            <h1>Hi {{name}}, just relax first while waiting for order = {{ order_total }}</h1>
+        {% endif %}
+
+        <form action="{{ url_for('barista_finish_order') }}"  method="POST" id="theForm">
+            <input type="hidden" value="{{ order_table }}" id="order_table" name="order_table">
+            <input type="hidden" value="{{ order_id }}" id="order_id" name="order_id">
+            <input type="hidden" value="{{ order_total }}" id="order_total">
+            <input type="hidden" value="no delete" id="order_delete" name="order_delete">
+        </form>
+
+        <button onclick="submitFunc()" id="myBtn" title="Go to top" >Order Done</button>
+        
+    {% endblock %}
+    
+    {% block javascript %}
+            <script>
+                
+                function submitFunc(){
+                    order_table = document.getElementById("order_table").value
+                    a = swal({
+                        title: "Have you finished the order?",
+                        text: "This is for the table "+order_table+" and please make sure the waiter already delivered the coffee before you press OK.",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                        })
+                        .then((willDelete) => {
+                            if (willDelete){
+                                document.getElementById('theForm').submit();                         
+                            }
+                        });
+                }
+                
+                function delFunc(){
+                    order_table = document.getElementById("order_table").value
+                    a = swal({
+                        title: "Are you sure to delete this order?",
+                        text: "This is for the table "+order_table+" and please recheck twice before deleting.",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                        })
+                        .then((willDelete) => {
+                            if (willDelete){
+                                document.getElementById("order_delete").value = 'delete'
+                                document.getElementById('theForm').submit();                         
+                            }
+                        });
+                }
+                
+                var order_total_val = parseInt(document.getElementById("order_total").value)
+                var updateInterval = setInterval(function() {
+                    
+                    console.log(order_total_val)
+                    if (order_total_val > 0){
+                        clearInterval(updateInterval)
+                    }else{
+                        $.ajax({
+                        type: 'GET',
+                        url: '/check_barista_order',
+                        success: function(response) {
+                            val_response = parseInt(response)
+                            console.log(val_response)
+                            if (val_response > 0){
+                                
+                                order_total_val = val_response
+                                location.reload()
+                            }
+                        },
+                        error: function() {
+                            console.log('Error, call the admin for this!');
+                        }
+                        });
+                    }
+                    
+                    },5000);
+                
+            </script>
+    {% endblock %}
+
+</html>

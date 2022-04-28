@@ -1,0 +1,37 @@
+{% import "bootstrap/wtf.html" as wtf %}
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
+    <title>
+        Barista Showtime
+    </title>
+    </head>
+    
+    {% block content %}
+        
+
+        <h1>Barista Login</h1>
+        <hr>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                
+                   <h3 style="color:red">{{ messages[0] }}</h3> 
+                
+            {% endif %}
+        {% endwith %}
+        <form action="{{ url_for('login_barista') }}" method="POST">
+                {{ form.hidden_tag() }}
+                {{ form.password(class="input is-large",placeholder='Enter Password') }}
+            
+            <input type='submit' class="button is-block is-info is-large is-fullwidth" value='Login'>
+
+        </form>
+    {% endblock %}
+</html>
