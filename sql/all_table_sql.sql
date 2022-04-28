@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS public.order_barista
     barista_hold_table integer,
     barista_status integer,
     barista_date_edit timestamp,
+    barista_order_id integer,
     CONSTRAINT order_barista_pkey PRIMARY KEY (barista_id)
 )
 
