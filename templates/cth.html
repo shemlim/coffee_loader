@@ -42,12 +42,15 @@
 
   {% block javascript %}
   <script type="text/javascript">
+      var run_submit = 0
       function onScanSuccess(qrCodeMessage) {
         var output = qrCodeMessage.split(/[/ ]+/).pop();
         
         document.getElementById("table").value = parseInt(output)
-        
-        document.getElementById("theForm").submit();
+        if (run_submit == 0){
+          document.getElementById("theForm").submit();
+        }
+        run_submit+=1
       }
       function onScanError(errorMessage) {
         document.getElementById('result').innerHTML = '<span class="result">'+errorMessage+'</span>';
