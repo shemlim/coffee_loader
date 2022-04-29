@@ -113,12 +113,14 @@
     
     {% block javascript %}
             <script>
+                var run_swal = 0
                 function refreshGo(){
                     location.reload()
                 }
                 
                 function submitFunc(){
                     order_table = document.getElementById("order_table").value
+                    
                     a = swal({
                         title: "Have you finished the order?",
                         text: "This is for the table "+order_table+" and please make sure the waiter already delivered the coffee before you press OK.",
@@ -154,42 +156,49 @@
                 var updateInterval = setInterval(function() {
                     
                     
-                    if (order_total_val > 0){
-                        clearInterval(updateInterval)
-                    }else{
-                        $.ajax({
-                        type: 'GET',
-                        url: '/check_barista_order',
-                        success: function(response) {
-                            val_response = parseInt(response)
+                    // if (order_total_val > 0){
+                    //     clearInterval(updateInterval)
+                    // }else{
+                    $.ajax({
+                    type: 'GET',
+                    url: '/check_barista_order',
+                    success: function(response) {
+                        val_response = parseInt(response)
+                        
+                        if (val_response > 0){
                             console.log(val_response)
-                            if (val_response > 0){
-                                
-                                order_total_val = val_response
-                                
+                            order_total_val = val_response
+                            if (run_swal == 0){
                                 a = swal({
-                                    title: "New order has been recieved",
-                                    text: "Press OK to recieve this order!",
-                                    icon: "warning",
-                                    buttons: true,
-                                    dangerMode: true,
-                                    })
-                                    .then((willDelete) => {
-                                        if (willDelete){
-                                            location.reload()               
-                                        }else{
-                                            var output = document.getElementById("text").innerHTML.split("=")[0];
-                                            document.getElementById("text").innerHTML = String(output) +'=' + String(order_total_val)
-                                            document.getElementById("refreshBut").style.display = "block";
-                                        }
-                                    });
+                                title: "New order has been recieved",
+                                text: "Press OK to recieve this order!",
+                                icon: "warning",
+                                buttons: true,
+                                dangerMode: true,
+                                })
+                                .then((willDelete) => {
+                                    if (willDelete){
+                                        location.reload()               
+                                    }else{
+                                        var output = document.getElementById("text").innerHTML.split("=")[0];
+                                        document.getElementById("text").innerHTML = String(output) +'= ' + String(order_total_val)
+                                        document.getElementById("refreshBut").style.display = "block";
+                                        order_total_val = 0
+                                        run_swal = 1
+                                    }
+                                });
+                            }else{
+                                var output = document.getElementById("text").innerHTML.split("=")[0];
+                                document.getElementById("text").innerHTML = String(output) +'= ' + String(order_total_val)
                             }
-                        },
-                        error: function() {
-                            console.log('Error, call the admin for this!');
+                            
                         }
-                        });
+                    },
+                    error: function() {
+                        console.log('Error, call the admin for this!');
                     }
+                    });
+                    // }
                     
                     },5000);
                 
