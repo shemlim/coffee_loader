@@ -4,7 +4,7 @@ from datetime import timedelta,datetime
 class db_date:
     def __init__(self):
         self.date_now = datetime.now() + timedelta(hours=8)
-        self.date = self.date_now.date
+        self.date = self.date_now.date()
         self.hour = self.date_now.hour
 
 ## For order transaction ##
@@ -35,18 +35,18 @@ def select_cat_menu():
 
 def connection():
     # For server
-    conn = psycopg2.connect(
-        host="ec2-34-194-73-236.compute-1.amazonaws.com",
-        database="dcluovhf5udvoh",
-        user='vjrkfvpclacsbk',
-        password='dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624')
+    # conn = psycopg2.connect(
+    #     host="ec2-34-194-73-236.compute-1.amazonaws.com",
+    #     database="dcluovhf5udvoh",
+    #     user='vjrkfvpclacsbk',
+    #     password='dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624')
 
     # For Local
-    # conn = psycopg2.connect(
-    #     host="localhost",
-    #     database="usersantuy",
-    #     user='postgres',
-    #     password='Shemlim12#')
+    conn = psycopg2.connect(
+        host="localhost",
+        database="usersantuy",
+        user='postgres',
+        password='Shemlim12#')
 
     cur = conn.cursor()
 
@@ -59,6 +59,7 @@ def check_order_transac_list():
     
     min = db_date().date_now
     dt_today = db_date().date
+    print(dt_today)
     if min.hour <= 17:
         min = datetime.strftime(dt_today,"%Y-%m-%d 06:00:00")
     else:

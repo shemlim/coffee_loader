@@ -46,7 +46,7 @@
         var output = qrCodeMessage.split(/[/ ]+/).pop();
         
         document.getElementById("table").value = parseInt(output)
-        alert(output)
+        
         document.getElementById("theForm").submit();
       }
       function onScanError(errorMessage) {
