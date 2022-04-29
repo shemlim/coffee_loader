@@ -41,7 +41,10 @@
     <body background="{{ url_for('static',filename='cool_photo.png') }}">
         <!-- <b><h1>Hi table {{ name }}</h1></b> -->
         <b><h2 style="text-align:center">Menu Coffee TJC PJ</h2></b>
-        <b><h2 style="text-align:center">Table {{ name }}</h2></b>
+        <b><h2 style="text-align:center">Table {{ table_order }} </h2></b>
+        {% if priority == 1 %}
+            <b><h2 style="text-align:center;font-size: 2em;">Hi, {{ name }} - THIS WILL BE PRIORITY FOR ELDER</h2></b>
+        {%endif%}
         <hr>
         <!-- <img src= "{{ img_url }}" alt="Latte" height="700" width="1500"> -->
         
@@ -74,6 +77,7 @@
         <form action="{{ url_for('recieve_coffee_order') }}"  method="POST" id="theForm">
             <input type="hidden" id="all_input" name="all_input" value="{{ ','.join(list(menu_dict.keys())) }}">
             <input type="hidden" id="table_order" name="table_order" value="{{ table_order }}">
+            <input type="hidden" id="priority" name="priority" value="{{ priority }}">
         </form>
 
         <button onclick="submitFunc()" id="myBtn" title="Go to top" >Submit</button>

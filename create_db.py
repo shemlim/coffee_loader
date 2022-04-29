@@ -29,18 +29,18 @@ def select_cat_menu():
 
 def connection():
     # For server
-    conn = psycopg2.connect(
-        host="ec2-34-194-73-236.compute-1.amazonaws.com",
-        database="dcluovhf5udvoh",
-        user='vjrkfvpclacsbk',
-        password='dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624')
+    # conn = psycopg2.connect(
+    #     host="ec2-34-194-73-236.compute-1.amazonaws.com",
+    #     database="dcluovhf5udvoh",
+    #     user='vjrkfvpclacsbk',
+    #     password='dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624')
 
     # For Local
-    # conn = psycopg2.connect(
-    #     host="localhost",
-    #     database="usersantuy",
-    #     user='postgres',
-    #     password='Shemlim12#')
+    conn = psycopg2.connect(
+        host="localhost",
+        database="usersantuy",
+        user='postgres',
+        password='Shemlim12#')
 
     cur = conn.cursor()
 
@@ -50,8 +50,15 @@ def connection():
 ## For order transaction ##
 def check_order_transac_list():
     conn,cur = connection()
-    sql = "select count(*) from order_transac where order_date = '{}' and order_status = 1;"\
-            .format(datetime.now())
+    min = datetime.now()
+    if min.hour <= 17:
+        min = datetime.strftime(datetime.today(),"%Y-%m-%d 06:00:00")
+    else:
+        min = datetime.strftime(datetime.today(),"%Y-%m-%d 17:30:00")
+    max = datetime.strftime(datetime.today(),"%Y-%m-%d 23:59:59")
+    
+    sql = "select count(*) from order_transac where order_date >= '{}' and order_date <= '{}' and order_status = 1;"\
+            .format(min,max)
     cur.execute(sql)
 
     mobile_records = cur.fetchall()
@@ -63,14 +70,20 @@ def check_order_transac_list():
 def select_order_list(order_id=None,head=1):
     conn,cur = connection()
     sql = ''
+    min = datetime.now()
+    if min.hour <= 17:
+        min = datetime.strftime(datetime.today(),"%Y-%m-%d 06:00:00")
+    else:
+        min = datetime.strftime(datetime.today(),"%Y-%m-%d 17:30:00")
+    max = datetime.strftime(datetime.today(),"%Y-%m-%d 23:59:59")
     if order_id != None:
         sql = """select * from order_transac where order_id = {}"""\
             .format(order_id)
     else:
-        sql = """select * from order_transac where order_date = '{}' and order_status = 1
+        sql = """select * from order_transac where order_date >= '{}' and order_date <= '{}' and order_status = 1
                 order by order_priority,order_id
                 limit {};"""\
-                .format(datetime.now(),head)
+                .format(min,max,head)
     cur.execute(sql)
 
     mobile_records = cur.fetchall()

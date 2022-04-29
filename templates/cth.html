@@ -1,4 +1,10 @@
+<!DOCTYPE html>
 
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 <script type="text/javascript" src="{{ url_for('static', filename='javascript/html5-qrcode.min.js') }}"></script>
 <!-- <script src="html5-qrcode.min.js"></script> -->
 <style>
@@ -11,24 +17,46 @@
     display:flex;
   }
 </style>
-
+{% block content %}
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        
+        <h3 style="color:red">{{ messages[0] }}</h3> 
+        
+    {% endif %}
+{% endwith %}
 <div class="row">
   <div class="col">
-    <div style="width:500px;" id="reader"></div>
+    <div style="width:800px;height:500px" id="reader"></div>
   </div>
   <div class="col" style="padding:30px;">
     <h4>SCAN RESULT</h4>
     <div id="result">Result Here</div>
   </div>
 </div>
-<script type="text/javascript">
-    function onScanSuccess(qrCodeMessage) {
-        document.getElementById('result').innerHTML = '<span class="result">'+qrCodeMessage+'</span>';
-    }
-    function onScanError(errorMessage) {
-    //handle scan error
-    }
-    var html5QrcodeScanner = new Html5QrcodeScanner(
-        "reader", { fps: 10, qrbox: 250 });
-    html5QrcodeScanner.render(onScanSuccess, onScanError);
-</script>
+
+      
+  <form action="{{ url_for('coffee_getter') }}" method="POST" id="theForm">
+    <input type="hidden" value="2" id="table" name="table">
+  </form>
+
+  {% block javascript %}
+  <script type="text/javascript">
+      function onScanSuccess(qrCodeMessage) {
+        var output = qrCodeMessage.split(/[/ ]+/).pop();
+        
+        document.getElementById("table").value = parseInt(output)
+        alert(output)
+        document.getElementById("theForm").submit();
+      }
+      function onScanError(errorMessage) {
+        document.getElementById('result').innerHTML = '<span class="result">'+errorMessage+'</span>';
+      }
+      var html5QrcodeScanner = new Html5QrcodeScanner(
+          "reader", { fps: 10, qrbox: 250 });
+      html5QrcodeScanner.render(onScanSuccess, onScanError);
+  </script>
+  {%endblock%}
+  {% endblock %}
+</head>
+</html>

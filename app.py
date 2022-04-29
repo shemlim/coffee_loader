@@ -10,7 +10,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from sqlalchemy import Table, create_engine, null
 from datetime import timedelta,datetime
-
+from functools import wraps
 
 app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(minutes=180)
@@ -19,8 +19,8 @@ Bootstrap(app)
 class Connection:
 
     # connection_path = "postgresql://mqhureykqyyrfb:4203d70494bbdc600a37641ffc08bbfba4e48ce6549b1285c042e1c56c76030f@ec2-52-86-56-90.compute-1.amazonaws.com:5432/demc2tb1r0urm0"
-    connection_path = "postgresql://vjrkfvpclacsbk:dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624@ec2-34-194-73-236.compute-1.amazonaws.com:5432/dcluovhf5udvoh"
-    # connection_path = "postgresql://postgres:Shemlim12#@localhost:5432/usersantuy"
+    # connection_path = "postgresql://vjrkfvpclacsbk:dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624@ec2-34-194-73-236.compute-1.amazonaws.com:5432/dcluovhf5udvoh"
+    connection_path = "postgresql://postgres:Shemlim12#@localhost:5432/usersantuy"
     engine = create_engine(connection_path)
     conn = engine.connect()
     secret_key = 'ezeepasardashboard_2021'
@@ -46,6 +46,27 @@ db = SQLAlchemy()
 db.init_app(app)
 ## Set connection up ##
 
+## Decorator ##
+def access_template_required(title='',url='main.index',list_div_id= None):
+    def decorator(func):
+        @wraps(func)
+        def authorize(*args, **kwargs):
+            if session['barista_job'] != title :
+                flash("Your account doesn't have access to that page.")
+                if session['barista_job'] == 'Barista':
+                    return redirect(url_for('barista_get_order'))
+                else:
+                    return redirect(url_for('waiter_order'))
+                        
+            # if list_div_id is not None:
+            #     if not current_user.has_page(list_page = list_div_id):
+            #         flash("Your account doesn't have access to this page.")
+            #         return redirect(url_for(url)) # not authorized
+            return func(*args, **kwargs)
+        return authorize
+    return decorator
+## Decorator ##
+
 
 @app.route('/')
 def success():
@@ -53,22 +74,29 @@ def success():
     return "Please wait for your coffee"
 
 @app.route('/getcoffee/<name>',methods=['GET'])
-def coffee_getter(name):
+@app.route('/getcoffee',methods=['POST'])
+def coffee_getter(name=None):
     
 
     all_menu = select_cat_menu()
     d_cat_menu = dict()
     
     try:
-        name = int(name)
+        name = int(name) if name != None else int(request.form['table'])
     except:
         return redirect(url_for("success"))
 
     for x in all_menu:
         image = url_for('static', filename='upload_photo/{}.jpg'.format(x[1]))
         d_cat_menu[x[1]] =  dict({'name':x[1],'status':x[2],"image":image})
-        
-    return render_template("ordercoffee.html",menu_dict=d_cat_menu,list=list,table_order=name)
+    
+    if (request.method == 'POST'):
+        print(name,request.form['table'])
+        return render_template("ordercoffee.html",menu_dict=d_cat_menu,list=list,table_order=name,priority=1,
+                                name=session['waiter_name'])
+
+
+    return render_template("ordercoffee.html",menu_dict=d_cat_menu,list=list,table_order=name,priority=2)
 
 
 @app.route("/list_order",methods=['POST'])
@@ -76,6 +104,7 @@ def recieve_coffee_order():
     if request.method=='POST':
         all_order = request.form['all_input']
         table_order = request.form['table_order']
+        priority = int(request.form['priority'])
         all_order,order_total = all_order.rsplit(",",1)
         order_total = int(order_total)
         # 1 -> pending, 2-> ongoing, 3-> finished
@@ -84,9 +113,12 @@ def recieve_coffee_order():
         print('order_total' , order_total,all_order)
         
         try:
-            insert_order(all_order,table_order,order_total,order_status)
+            insert_order(all_order,table_order,order_total,order_status,priority)
         except Exception as e:
             print(e)
+        
+        if priority == 1:
+            return redirect(url_for('waiter_order'))
     return redirect(url_for('success'))
 ## Login for barista ##
 
@@ -166,6 +198,7 @@ def login_barista():
             ## Lanjutkan ##
             session['waiter_id'] = user.barista_id
             session['waiter_name'] = user.barista_name
+            session['barista_job'] = user.barista_job
             login_user(user)
             return redirect(url_for('waiter_order'))
 
@@ -175,6 +208,7 @@ def login_barista():
 
 @app.route("/check_barista_order")
 @login_required
+@access_template_required('Barista')
 def check_order():
     len_order = check_order_transac_list()[0][0]
     return str(len_order)
@@ -182,6 +216,7 @@ def check_order():
 # Function for barista #
 @app.route('/barista_order',methods = ['GET'])
 @login_required
+@access_template_required('Barista')
 def barista_get_order():
     
     if (session['barista_order_id'] != None):
@@ -232,6 +267,7 @@ def barista_get_order():
 
 
 @app.route("/barista_finish",methods=['POST'])
+@access_template_required('Barista')
 def barista_finish_order():
 
     is_del = request.form['order_delete']
@@ -258,6 +294,7 @@ def barista_finish_order():
 # Function for waiter #
 @app.route("/waiter_order",methods=['GET'])
 @login_required
+@access_template_required('Waiter')
 def waiter_order():
     return render_template('cth.html')
 
