@@ -18,9 +18,8 @@ Bootstrap(app)
 ## Set connection up ##
 class Connection:
 
-    # connection_path = "postgresql://mqhureykqyyrfb:4203d70494bbdc600a37641ffc08bbfba4e48ce6549b1285c042e1c56c76030f@ec2-52-86-56-90.compute-1.amazonaws.com:5432/demc2tb1r0urm0"
-    # connection_path = "postgresql://vjrkfvpclacsbk:dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624@ec2-34-194-73-236.compute-1.amazonaws.com:5432/dcluovhf5udvoh"
-    connection_path = "postgresql://postgres:Shemlim12#@localhost:5432/usersantuy"
+    connection_path = "postgresql://vjrkfvpclacsbk:dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624@ec2-34-194-73-236.compute-1.amazonaws.com:5432/dcluovhf5udvoh"
+    # connection_path = "postgresql://postgres:Shemlim12#@localhost:5432/usersantuy"
     engine = create_engine(connection_path)
     conn = engine.connect()
     secret_key = 'ezeepasardashboard_2021'
