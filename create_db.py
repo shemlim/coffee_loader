@@ -12,7 +12,7 @@ def insert_order(list_order,table_order,order_total,order_status,priority=1):
     conn,cur = connection()
     sql = """insert into order_transac(order_table,order_details,order_priority,order_total,order_status,order_date) 
             values({},'{}',{},{},{},'{}');
-          """.format(table_order,list_order,priority,order_total,order_status,db_date.date_now)
+          """.format(table_order,list_order,priority,order_total,order_status,db_date().date_now)
     cur.execute(sql)
     conn.commit()
     cur.close()
@@ -57,8 +57,8 @@ def connection():
 def check_order_transac_list():
     conn,cur = connection()
     
-    min = db_date.date_now
-    dt_today = db_date.date
+    min = db_date().date_now
+    dt_today = db_date().date
     if min.hour <= 17:
         min = datetime.strftime(dt_today,"%Y-%m-%d 06:00:00")
     else:
@@ -78,8 +78,8 @@ def check_order_transac_list():
 def select_order_list(order_id=None,head=1):
     conn,cur = connection()
     sql = ''
-    min = db_date.date_now
-    dt_today = db_date.date
+    min = db_date().date_now
+    dt_today = db_date().date
     if min.hour <= 17:
         min = datetime.strftime(dt_today,"%Y-%m-%d 06:00:00")
     else:
