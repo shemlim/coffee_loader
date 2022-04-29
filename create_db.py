@@ -111,7 +111,7 @@ def update_order_list(order_barista,order_id,order_status=2):
             begin;
             update order_transac
             set order_barista = '{}',order_status = {}
-            where order_id = {} and order_status = 1 and order_barista is NULL
+            where order_id = {} and order_status = 1 and order_barista is NULL;
             
             commit;""".format(order_barista,order_status,order_id)
     cur.execute(sql)
