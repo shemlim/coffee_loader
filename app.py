@@ -247,7 +247,7 @@ def barista_get_order():
         try:
             update_order_list(session['barista_name'],order_id)
         except:
-            return redirect(url_for('barista_get_order'))
+            return render_template('barista_order_list.html',name = session['barista_name'],order_total=0)
         # Update order barista
         user.barista_order_id = order_id
         user.barista_hold_table = order_table
