@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS public.order_barista
 )
 
 insert into order_barista(barista_name,barista_password,barista_job) values('Seth','seth123','Barista')
+insert into order_barista(barista_name,barista_password,barista_job) values('Chloe','chloe123','Waiter')
+
 
 -- Transaction order table
 CREATE TABLE IF NOT EXISTS public.order_transac
