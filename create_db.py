@@ -4,9 +4,9 @@ from datetime import timedelta,datetime
 ## For order transaction ##
 def insert_order(list_order,table_order,order_total,order_status,priority=1):
     conn,cur = connection()
-    sql = """insert into order_transac(order_table,order_details,order_priority,order_total,order_status) 
-            values({},'{}',{},{},{});
-          """.format(table_order,list_order,priority,order_total,order_status)
+    sql = """insert into order_transac(order_table,order_details,order_priority,order_total,order_status,order_date) 
+            values({},'{}',{},{},{},'{}');
+          """.format(table_order,list_order,priority,order_total,order_status,datetime.now())
     cur.execute(sql)
     conn.commit()
     cur.close()
