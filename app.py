@@ -238,13 +238,16 @@ def barista_get_order():
         
         # Order Transaction
         order_tr = select_order_list()[0]
+        
         order_id = order_tr[0]
         order_table = order_tr[1]
         order_total = order_tr[4]
 
         # Update order transaction
-        update_order_list(session['barista_name'],order_id)
-
+        try:
+            update_order_list(session['barista_name'],order_id)
+        except:
+            return redirect(url_for('barista_get_order'))
         # Update order barista
         user.barista_order_id = order_id
         user.barista_hold_table = order_table

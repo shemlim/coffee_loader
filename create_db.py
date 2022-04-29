@@ -109,7 +109,7 @@ def update_order_list(order_barista,order_id,order_status=2):
     conn,cur = connection()
     sql = """update order_transac
             set order_barista = '{}',order_status = {}
-            where order_id = {} """.format(order_barista,order_status,order_id)
+            where order_id = {} and order_barista is NULL and order_status=1""".format(order_barista,order_status,order_id)
     cur.execute(sql)
 
     conn.commit()
