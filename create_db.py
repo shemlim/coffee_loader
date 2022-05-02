@@ -79,7 +79,7 @@ def check_order_transac_list():
     conn.close()
     return mobile_records
 
-def select_order_list(order_id=None,head=1):
+def select_order_list(order_id=None,rand_str=None,head=1):
     conn,cur = connection()
     sql = ''
     time = call_time()
@@ -92,8 +92,11 @@ def select_order_list(order_id=None,head=1):
     max = datetime.strftime(dt_today,"%Y-%m-%d 23:59:59")
     print('min,max',min,max)
     if order_id != None:
+        
         sql = """select * from order_transac where order_id = {}"""\
-            .format(order_id)
+            .format(order_id) if rand_str == None else \
+                """select * from order_transac where order_id = {} and order_rand_str='{}' """\
+            .format(order_id,rand_str)
     else:
         sql = """select * from order_transac where order_date >= '{}' and order_date <= '{}' and order_status = 1
                 order by order_priority,order_id

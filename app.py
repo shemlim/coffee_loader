@@ -250,6 +250,10 @@ def barista_get_order():
         # Update order transaction
         try:
             update_order_list(session['barista_name'],order_id,random_string)
+            order_tr = select_order_list(rand_str=random_string)[0]
+            order_id = order_tr[0]
+            order_table = order_tr[1]
+            order_total = order_tr[4]
             # Update order barista
             user.barista_order_id = order_id
             user.barista_hold_table = order_table
