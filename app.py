@@ -1,7 +1,8 @@
 from flask_login import LoginManager,login_user, logout_user, login_required,current_user
 from flask import Flask, redirect,request,render_template,url_for,session,flash
 from psycopg2 import connect
-from create_db import connection,insert_order,select_cat_menu,select_order_list,check_order_transac_list,update_order_list
+from create_db import connection,insert_order,select_cat_menu,select_order_list,\
+                        check_order_transac_list,update_order_list,update_order_rndstr
 from flask_wtf import FlaskForm
 from wtforms import PasswordField
 from wtforms.validators import  Length
@@ -11,7 +12,7 @@ from flask_login import UserMixin
 from sqlalchemy import Table, create_engine, null
 from datetime import timedelta,datetime
 from functools import wraps
-
+import random,string
 app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(minutes=180)
 Bootstrap(app)
@@ -238,26 +239,30 @@ def barista_get_order():
         
         # Order Transaction
         order_tr = select_order_list()[0]
-        
         order_id = order_tr[0]
         order_table = order_tr[1]
         order_total = order_tr[4]
 
+        random_string = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(30))
+        update_order_rndstr(random_string,order_id)
+        
+        
         # Update order transaction
         try:
-            update_order_list(session['barista_name'],order_id)
-        except:
+            update_order_list(session['barista_name'],order_id,random_string)
+            # Update order barista
+            user.barista_order_id = order_id
+            user.barista_hold_table = order_table
+            user.barista_status = 1 # Ongoing order 
+            user.barista_date_edit = datetime.now()
+            session['barista_order_id'] = order_id
+            db.session.commit()
+        except Exception as e:
             return render_template('barista_order_list.html',name = session['barista_name'],order_total=0)
-        # Update order barista
-        user.barista_order_id = order_id
-        user.barista_hold_table = order_table
-        user.barista_status = 1 # Ongoing order 
-        user.barista_date_edit = datetime.now()
-        session['barista_order_id'] = order_id
-        db.session.commit()
+            # print(e)
         return render_template('barista_order_list.html',name = session['barista_name'],order_total=order_total
         ,order_tr=order_tr)
-
+        
     else:
         user.barista_hold_table = None
         user.barista_status = None

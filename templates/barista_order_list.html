@@ -98,6 +98,7 @@
         {% else %}
             <h1 id="text">Hi {{name}}, just relax first while waiting for order = {{ order_total }}</h1>
             <button id="refreshBut" onclick="refreshGo()" style="display:none;">Refresh to recieve order</button>
+            <input type="hidden" value="no order" id="no_order">
         {% endif %}
 
         <form action="{{ url_for('barista_finish_order') }}"  method="POST" id="theForm">
@@ -154,11 +155,15 @@
                 
                 var order_total_val = parseInt(document.getElementById("order_total").value)
                 var updateInterval = setInterval(function() {
+                    try{
+                        var no_order = document.getElementById("no_order").value
+                    }
+                    catch(err){
+                        console.log(err)
+                        clearInterval(updateInterval)
+                        run_swal = 1
+                    }
                     
-                    
-                    // if (order_total_val > 0){
-                    //     clearInterval(updateInterval)
-                    // }else{
                     $.ajax({
                     type: 'GET',
                     url: '/check_barista_order',
@@ -178,7 +183,8 @@
                                 })
                                 .then((willDelete) => {
                                     if (willDelete){
-                                        location.reload()               
+                                        location.reload() 
+                                                     
                                     }else{
                                         var output = document.getElementById("text").innerHTML.split("=")[0];
                                         document.getElementById("text").innerHTML = String(output) +'= ' + String(order_total_val)
