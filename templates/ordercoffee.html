@@ -88,24 +88,27 @@
 
         {% block javascript %}
             <script>
-                
                 function submitFunc(){
                     hidden_value = document.getElementById("all_input").value
+                    console.log(hidden_value)
                     hidden_value = hidden_value.split(",")
+                    
                     text = '';
                     alert_text = '';
                     total_val = 0;
                     for (let i = 0; i < hidden_value.length; i++) {
                         coffee_val = document.getElementById(hidden_value[i]).value
                         total_val += parseInt(coffee_val);
-                        text += coffee_val + "x" + hidden_value[i] + ",";
+                        if (coffee_val > 0){
+                            text += coffee_val + "x" + hidden_value[i] + ",";
+                        }
                         if (coffee_val > 0){
                             alert_text += coffee_val + "x " + hidden_value[i] + "\n";
                         }
                     }
                     // document.getElementById("all_input").value = text + String(total_val) + "xTotal Order"
-                    console.log(document.getElementById("all_input").value)
-                    a = swal({
+                    if(total_val > 0){
+                        a = swal({
                         title: "Are you already checked the order twice?",
                         text: "Once ordered, you can not change it anymore!\n" + alert_text,
                         icon: "warning",
@@ -113,8 +116,9 @@
                         dangerMode: true,
                         })
                         .then((willDelete) => {
-                            document.getElementById("all_input").value = text + String(total_val)
+                            
                             if (willDelete) {
+                                document.getElementById("all_input").value = text + String(total_val)
                                 swal("Your coffee order has been listed!", {
                                 icon: "success",
                                 });
@@ -128,6 +132,15 @@
                                 }, 1200); 
                             }
                         });
+                    }else{
+                        a = swal({
+                        title: "You have no order! Please add your coffee first.",
+                        text: "Once ordered, you can not change it anymore!",
+                        icon: "warning",
+                        dangerMode: true,
+                        });
+                    }
+                    
                     
                 }
                 

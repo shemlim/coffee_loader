@@ -3,7 +3,7 @@ from datetime import timedelta,datetime
 
 def call_time():
     
-    date_now = datetime.now() 
+    date_now = datetime.now()
     # + timedelta(hours=8)
     date = date_now.date()
     
@@ -99,6 +99,7 @@ def select_order_list(order_id=None,rand_str=None,head=1):
             .format(order_id,rand_str)
     else:
         sql = """select * from order_transac where order_date >= '{}' and order_date <= '{}' and order_status = 1
+                 and order_rand_str is NULL
                 order by order_priority,order_id
                 limit {};"""\
                 .format(min,max,head)
@@ -111,16 +112,45 @@ def select_order_list(order_id=None,rand_str=None,head=1):
     return mobile_records
 
 
+def select_order_status_list():
+    conn,cur = connection()
+    sql = ''
+    time = call_time()
+    min = time[0]
+    dt_today = time[1]
+    if min.hour <= 17:
+        min = datetime.strftime(dt_today,"%Y-%m-%d 06:00:00")
+    else:
+        min = datetime.strftime(dt_today,"%Y-%m-%d 17:30:00")
+    max = datetime.strftime(dt_today,"%Y-%m-%d 23:59:59")
+    print('min,max',min,max)
+    
+    sql = """select * from order_transac where order_date >= '{}' and order_date <= '{}'
+            order by order_status desc, order_priority asc,order_id asc;"""\
+            .format(min,max)
+    cur.execute(sql)
+
+    mobile_records = cur.fetchall()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return mobile_records
+
 # On going, status = 2#
-def update_order_list(order_barista,order_id,order_rand_str,order_status=2):
+def update_order_list(order_barista,order_id,order_rand_str=None,order_status=2):
     conn,cur = connection()
     sql = """
-            
             update order_transac
             set order_barista = '{}',order_status = {}
             where order_id = {} and order_status = 1 and order_rand_str = '{}';
             
-            """.format(order_barista,order_status,order_id,order_rand_str)
+            """.format(order_barista,order_status,order_id,order_rand_str) if order_rand_str != None else \
+            """
+            update order_transac
+            set order_barista = '{}',order_status = {}
+            where order_id = {} ;
+            
+            """.format(order_barista,order_status,order_id)
     cur.execute(sql)
 
     conn.commit()

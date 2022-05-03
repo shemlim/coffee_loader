@@ -2,7 +2,7 @@ from flask_login import LoginManager,login_user, logout_user, login_required,cur
 from flask import Flask, redirect,request,render_template,url_for,session,flash
 from psycopg2 import connect
 from create_db import connection,insert_order,select_cat_menu,select_order_list,\
-                        check_order_transac_list,update_order_list,update_order_rndstr
+                        check_order_transac_list,update_order_list,update_order_rndstr,select_order_status_list
 from flask_wtf import FlaskForm
 from wtforms import PasswordField
 from wtforms.validators import  Length
@@ -50,21 +50,22 @@ db.init_app(app)
 ## Set connection up ##
 
 ## Decorator ##
-def access_template_required(title='',url='main.index',list_div_id= None):
+def access_template_required(title=[],url='main.index',list_div_id= None):
     def decorator(func):
         @wraps(func)
         def authorize(*args, **kwargs):
-            if session['barista_job'] != title :
+            
+            if session['barista_job'] not in title:
                 flash("Your account doesn't have access to that page.")
-                if session['barista_job'] == 'Barista':
+                
+                if (session['barista_job'] == 'Barista') or (session['barista_job'] == 'Senior Barista'):
+                    
                     return redirect(url_for('barista_get_order'))
-                else:
+                elif (session['barista_job'] == 'Waiter'):
                     return redirect(url_for('waiter_order'))
+                else:
+                    return redirect(url_for("login_barista"))
                         
-            # if list_div_id is not None:
-            #     if not current_user.has_page(list_page = list_div_id):
-            #         flash("Your account doesn't have access to this page.")
-            #         return redirect(url_for(url)) # not authorized
             return func(*args, **kwargs)
         return authorize
     return decorator
@@ -106,6 +107,7 @@ def coffee_getter(name=None):
 def recieve_coffee_order():
     if request.method=='POST':
         all_order = request.form['all_input']
+        print(all_order)
         table_order = request.form['table_order']
         priority = int(request.form['priority'])
         all_order,order_total = all_order.rsplit(",",1)
@@ -164,6 +166,7 @@ def logout():
 @app.route('/login_barista', methods=['POST'])
 def login_barista():
     if current_user.is_authenticated:
+
         return redirect(url_for('barista_get_order'))
 
     form = LoginForm()
@@ -176,7 +179,7 @@ def login_barista():
         if user == None:
             flash('Please check your login details and try again.')
             return redirect(url_for('login_barista'))
-        if user.barista_job == 'Barista':
+        if (user.barista_job == 'Barista') or (user.barista_job == 'Senior Barista') :
             # return str(user)
             try:
                 # Reset user barista
@@ -211,7 +214,7 @@ def login_barista():
 
 @app.route("/check_barista_order")
 @login_required
-@access_template_required('Barista')
+@access_template_required(['Barista','Senior Barista'])
 def check_order():
     len_order = check_order_transac_list()[0][0]
     return str(len_order)
@@ -219,10 +222,13 @@ def check_order():
 # Function for barista #
 @app.route('/barista_order',methods = ['GET'])
 @login_required
-@access_template_required('Barista')
+@access_template_required(['Barista','Senior Barista'])
 def barista_get_order():
-    
-    if (session['barista_order_id'] != None):
+    user = User.query.filter_by(barista_id = session['barista_id']).first()
+    if (user.barista_job == 'Senior Barista'):
+        return redirect(url_for('senior_barista'))
+
+    if (session['barista_order_id'] != None) & (user.barista_order_id != None):
         order_tr = select_order_list(int(session['barista_order_id']))[0]
         if order_tr[6] == 2:
             order_id = order_tr[0]
@@ -234,7 +240,6 @@ def barista_get_order():
 
     len_order = check_order_transac_list()[0][0]
     
-    user = User.query.filter_by(barista_id = session['barista_id']).first()
     if len_order >= 1:
         
         # Order Transaction
@@ -242,10 +247,8 @@ def barista_get_order():
         order_id = order_tr[0]
         order_table = order_tr[1]
         order_total = order_tr[4]
-
         random_string = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(30))
         update_order_rndstr(random_string,order_id)
-        
         
         # Update order transaction
         try:
@@ -254,14 +257,16 @@ def barista_get_order():
             order_id = order_tr[0]
             order_table = order_tr[1]
             order_total = order_tr[4]
+
             # Update order barista
             user.barista_order_id = order_id
             user.barista_hold_table = order_table
-            user.barista_status = 1 # Ongoing order 
+            user.barista_status = 1 # Ongoing order
             user.barista_date_edit = datetime.now()
             session['barista_order_id'] = order_id
             db.session.commit()
         except Exception as e:
+            flash("Your order has been taken by the others.")
             return render_template('barista_order_list.html',name = session['barista_name'],order_total=0)
             # print(e)
         return render_template('barista_order_list.html',name = session['barista_name'],order_total=order_total
@@ -280,21 +285,64 @@ def barista_get_order():
         return render_template('barista_order_list.html',name = session['barista_name'],order_total=0)
 
 
+@app.route('/senior_barista',methods=['GET'])
+@app.route('/senior_barista',methods=['POST'])
+@login_required
+@access_template_required(['Senior Barista'])
+def senior_barista():
+    # Later change the head
+    order_tr = select_order_list(head=100)
+    user = User.query.filter_by(barista_id = session['barista_id']).first()
+    if (request.method == 'POST'):
+        order_id = request.form['order_id']
+        order_tr = select_order_list()[0]
+        order_id = order_tr[0]
+        order_table = order_tr[1]
+        order_total = order_tr[4]
+        random_string = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(30))
+        update_order_rndstr(random_string,order_id)
+        
+        try:
+            update_order_list(session['barista_name'],order_id,random_string)
+            order_tr = select_order_list(order_id=order_id,rand_str=random_string)[0]
+            order_id = order_tr[0]
+            order_table = order_tr[1]
+            order_total = order_tr[4]
+
+            # Update order barista
+            user.barista_order_id = order_id
+            user.barista_hold_table = order_table
+            user.barista_status = 1 # Ongoing order
+            user.barista_date_edit = datetime.now()
+            session['barista_order_id'] = order_id
+            db.session.commit()
+
+        except Exception as e:
+            flash("Your order has been taken by the others.")
+            return redirect(url_for("senior_barista"))
+            # print(e)
+        return render_template('barista_order_list.html',name = session['barista_name'],order_total=order_total
+        ,order_tr=order_tr)
+
+    return render_template('barista_order_list_senior.html',name = session['barista_name'],
+                order_tr=order_tr,zip=zip)
+
+
 @app.route("/barista_finish",methods=['POST'])
-@access_template_required('Barista')
+@access_template_required(['Barista','Senior Barista'])
 def barista_finish_order():
 
     is_del = request.form['order_delete']
     order_id = request.form['order_id']
     # The order will be deleted.
     if is_del == 'delete':
-        update_order_list(session['barista_name'],order_id,5)
+        update_order_list(session['barista_name'],order_id,order_status=5)
         return redirect(url_for('barista_get_order'))
 
     # The order will be finished and up to delivery.
     user = User.query.filter_by(barista_id = session['barista_id']).first()
 
-    update_order_list(session['barista_name'],order_id,3)
+    update_order_list(session['barista_name'],order_id,order_status=3)
     
     user.barista_order_id = None
     session['barista_order_id'] = None
@@ -308,10 +356,20 @@ def barista_finish_order():
 # Function for waiter #
 @app.route("/waiter_order",methods=['GET'])
 @login_required
-@access_template_required('Waiter')
+@access_template_required(['Waiter'])
 def waiter_order():
+    print("ya")
     return render_template('cth.html')
 
+@app.route('/waiter_coffee_list',methods=['GET'])
+@login_required
+@access_template_required(["Waiter"])
+def waiter_coffee_list():
+    # Later change the head
+    order_tr = select_order_status_list()
+    
+    return render_template('coffee_order_list.html',name = session['waiter_name'],
+                order_tr=order_tr,zip=zip)
 # Function for waiter #
 
     
