@@ -64,7 +64,7 @@
                                     <div class="num-cup-wrap mt-3">
                                         <!-- Minus Button -->
                                         <div class="count-minus"><i class="fa-solid fa-circle-minus"
-                                            id="{{min_btn}}" onclick="minusCounter(this.id)"></i></div>
+                                            id="{{min_btn}}" onclick="minusCounter(this.id)" style="display:none;"></i></div>
 
                                         <input type="text" value="0" class="form-control text-center mx-2"
                                                 id="{{x}}">
@@ -162,21 +162,22 @@
                     id = btn_id.split("_")[0]
                     counter_val = parseInt(document.getElementById(id).value)
                     if (counter_val + 1 > 0){
-                        document.getElementById(btn_id+"_m").disabled = false
+                        document.getElementById(btn_id+"_m").style.display = "block"
                     }
                     document.getElementById(id).value = counter_val + 1
                 }
 
                 function minusCounter(btn_id) {
                     id = btn_id.split("_")[0]
+                    
                     counter_val = parseInt(document.getElementById(id).value)
                     if (counter_val - 1 == 0){
                         document.getElementById(id).value = counter_val - 1
-                        document.getElementById(btn_id).disabled = true;
+                        document.getElementById(btn_id).style.display = "none";
                     }
                     else{
                         document.getElementById(id).value = counter_val - 1
-                        document.getElementById(btn_id).disabled = false;
+                        document.getElementById(btn_id).style.display = "block";
                     }
                 }
                 
