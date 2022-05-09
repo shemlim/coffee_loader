@@ -79,30 +79,39 @@ def check_order_transac_list():
     conn.close()
     return mobile_records
 
-def select_order_list(order_id=None,rand_str=None,head=1):
+def select_order_list(order_id=None,rand_str=None,head=1,min_date=None,max_date=None):
     conn,cur = connection()
     sql = ''
     time = call_time()
-    min = time[0]
-    dt_today = time[1]
-    if min.hour <= 17:
-        min = datetime.strftime(dt_today,"%Y-%m-%d 06:00:00")
-    else:
-        min = datetime.strftime(dt_today,"%Y-%m-%d 17:30:00")
-    max = datetime.strftime(dt_today,"%Y-%m-%d 23:59:59")
-    print('min,max',min,max)
-    if order_id != None:
+    min = '';max=''
+    if (min_date == None) and (max_date == None):
+        min = time[0]
+        dt_today = time[1]
+        if min.hour <= 17:
+            min = datetime.strftime(dt_today,"%Y-%m-%d 06:00:00")
+        else:
+            min = datetime.strftime(dt_today,"%Y-%m-%d 17:30:00")
+        max = datetime.strftime(dt_today,"%Y-%m-%d 23:59:59")
+        if order_id != None:
         
-        sql = """select * from order_transac where order_id = {}"""\
-            .format(order_id) if rand_str == None else \
-                """select * from order_transac where order_id = {} and order_rand_str='{}' """\
-            .format(order_id,rand_str)
+            sql = """select * from order_transac where order_id = {}"""\
+                .format(order_id) if rand_str == None else \
+                    """select * from order_transac where order_id = {} and order_rand_str='{}' """\
+                .format(order_id,rand_str)
+        else:
+            sql = """select * from order_transac where order_date >= '{}' and order_date <= '{}' and order_status = 1
+                    and order_rand_str is NULL
+                    order by order_priority,order_id
+                    limit {};"""\
+                    .format(min,max,head)
     else:
-        sql = """select * from order_transac where order_date >= '{}' and order_date <= '{}' and order_status = 1
-                 and order_rand_str is NULL
-                order by order_priority,order_id
-                limit {};"""\
-                .format(min,max,head)
+        min = min_date
+        max = max_date
+
+        sql = "select * from order_transac where order_date >= '{}' and order_date <= '{}' and order_status = 3;"\
+            .format(min,max)
+
+    
     cur.execute(sql)
 
     mobile_records = cur.fetchall()

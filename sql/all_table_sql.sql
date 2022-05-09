@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS public.order_barista
     CONSTRAINT order_barista_pkey PRIMARY KEY (barista_id)
 )
 
-insert into order_barista(barista_name,barista_password,barista_job) values('Seth','seth123','Barista')
+insert into order_barista(barista_name,barista_password,barista_job) values('Seth','seth123','Barista') 
 insert into order_barista(barista_name,barista_password,barista_job) values('Chloe','chloe123','Waiter')
 
 

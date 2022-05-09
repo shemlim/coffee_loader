@@ -15,18 +15,18 @@
         
         #myBtn {
         
-        position: fixed;
-        bottom: 20px;
-        right: 30px;
-        z-index: 99;
-        font-size: 18px;
-        border: none;
-        outline: none;
-        background-color: red;
-        color: white;
-        cursor: pointer;
-        padding: 15px;
-        border-radius: 4px;
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            z-index: 99;
+            font-size: 18px;
+            border: none;
+            outline: none;
+            background-color: red;
+            color: white;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 4px;
         }
         
         #myBtn:hover {
@@ -54,7 +54,16 @@
         <table>
                 <!-- To add another menu -->
                 <tr>
-                    <td><h1 style="font-family: 'Brush Script MT', cursive;font-size: 3em;">{{ x }}</h1></td>
+                    <td>
+                        
+                        {% if y['is_active'] == True %}
+                            <h1 style="font-family: 'Brush Script MT', cursive;font-size: 3em;">{{ x }}</h1>
+                        {% else %}
+                            <p><h1 style="font-family: 'Brush Script MT', cursive;font-size: 3em;">
+                                <s>{{ x }}</s> <br/><italic style="color:red">*Not Available</italic> </h1></p>
+                            
+                        {%endif%}
+                    </td>
                 </tr>
                 <tr>
                     <td><img src= "{{ y['image'] }}" alt="Mocca" height="200" width="250"></td>
@@ -63,10 +72,18 @@
                             <span name="minus">&#8722;</span>
                         </button>
                         <input type="number" class="count" id="{{ x }}" value="0" style="width: 2em" disabled="disabled">
+                        {% if y['is_active'] == True %}
+                            <button type="button" class="btn btn-default btn-number" id="{{plus_btn}}" onclick="addCounter(this.id)"
+                                    data-type="minus" data-field="quant[1]">
+                                <span name="plus">&#43;</span>
+                            </button>
+                        {% else %}
                         <button type="button" class="btn btn-default btn-number" id="{{plus_btn}}" onclick="addCounter(this.id)"
-                                data-type="minus" data-field="quant[1]">
+                                data-type="minus" data-field="quant[1]" disabled="disabled">
                             <span name="plus">&#43;</span>
                         </button>
+                            
+                        {%endif%}
                     </td>
                 </tr>
                 <!-- To add another menu -->

@@ -1,6 +1,6 @@
 from flask_login import LoginManager,login_user, logout_user, login_required,current_user
 from flask import Flask, redirect,request,render_template,url_for,session,flash
-from psycopg2 import connect
+
 from create_db import connection,insert_order,select_cat_menu,select_order_list,\
                         check_order_transac_list,update_order_list,update_order_rndstr,select_order_status_list
 from flask_wtf import FlaskForm
@@ -13,6 +13,8 @@ from sqlalchemy import Table, create_engine, null
 from datetime import timedelta,datetime
 from functools import wraps
 import random,string
+from datetime import date, timedelta
+import pandas as pd
 app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(minutes=180)
 Bootstrap(app)
@@ -63,6 +65,8 @@ def access_template_required(title=[],url='main.index',list_div_id= None):
                     return redirect(url_for('barista_get_order'))
                 elif (session['barista_job'] == 'Waiter'):
                     return redirect(url_for('waiter_order'))
+                elif (session['barista_job'] == 'Admin'):
+                    return redirect(url_for('admin_order'))
                 else:
                     return redirect(url_for("login_barista"))
                         
@@ -89,10 +93,13 @@ def coffee_getter(name=None):
         name = int(name) if name != None else int(request.form['table'])
     except:
         return redirect(url_for("success"))
+    if name <= 0:
+        return redirect(url_for("success"))
 
     for x in all_menu:
-        image = url_for('static', filename='upload_photo/{}.jpg'.format(x[1]))
-        d_cat_menu[x[1]] =  dict({'name':x[1],'status':x[2],"image":image})
+        image = url_for('static', filename='upload_photo/{}.jpg'.format(str(x[1]).lower()))
+        d_cat_menu[x[1]] =  dict({'name':x[1],'status':x[2],"image":image,'is_active':x[6],'price':x[7]})
+        print(x[6])
     
     if (request.method == 'POST'):
         print(name,request.form['table'])
@@ -100,7 +107,7 @@ def coffee_getter(name=None):
                                 name=session['waiter_name'])
 
 
-    return render_template("ordercoffee.html",menu_dict=d_cat_menu,list=list,table_order=name,priority=2)
+    return render_template("index.html",menu_dict=d_cat_menu,list=list,table_order=name,priority=2)
 
 
 @app.route("/list_order",methods=['POST'])
@@ -187,6 +194,7 @@ def login_barista():
                 user.barista_order_id = None
                 user.barista_status = None
                 db.session.commit()
+
                 # Taruh session
                 login_user(user)
                 session['barista_id'] = user.barista_id
@@ -201,12 +209,20 @@ def login_barista():
             
             return redirect(url_for('barista_get_order'))
         elif user.barista_job == 'Waiter':
+            login_user(user)
             ## Lanjutkan ##
             session['waiter_id'] = user.barista_id
             session['waiter_name'] = user.barista_name
             session['barista_job'] = user.barista_job
-            login_user(user)
+            
             return redirect(url_for('waiter_order'))
+        elif user.barista_job == 'Admin':
+            login_user(user)
+            session['admin_id'] = user.barista_id
+            session['admin_name'] = user.barista_name
+            session['barista_job'] = user.barista_job
+            
+            return redirect(url_for('admin_order'))
 
     return render_template('login.html',form=form)
 ## Login for barista ##
@@ -371,6 +387,76 @@ def waiter_coffee_list():
     return render_template('coffee_order_list.html',name = session['waiter_name'],
                 order_tr=order_tr,zip=zip)
 # Function for waiter #
+
+# Function for admin #
+def allsundays(year,month= []):
+    d = date(year, min(month), 1)
+    d += timedelta(days = 6 - d.weekday())
+    while (d.year == year) & (d.month in month):
+        yield d
+        d += timedelta(days = 7)
+
+    for d in allsundays(2022,[4,7]):
+        print(d)
+
+def to_pd(mobile_records,df='order'):
+    menu_df = pd.DataFrame(mobile_records)
+    if df == 'order':
+        menu_df.columns = ['order_id','order_table','order_details','order_priority','order_totals','order_barista','order_status','order_date','order_rand_str']
+    else:
+        menu_df.columns = ['menu_id','menu_name','menu_status','menu_date','order_description','order_menu_category','menu_available','menu_price']
+    return menu_df
+
+def summary_report_func(df,menu_df):
+    total_buy = dict()
+        
+    for x in df['order_details']:
+        for y in x.split(","):
+            total,coffee = y.split("x")
+            if coffee in total_buy.keys():
+                total_buy[coffee] += int(total)
+            else:
+                total_buy[coffee] = int(total)
+    
+    summary = pd.DataFrame([x for x in total_buy.keys()]).rename(columns={0:'menu_name'})
+    summary['menu_count'] = summary['menu_name'].apply(lambda x: total_buy[x])
+    summary = pd.merge(summary,menu_df[['menu_name','menu_price']],how='left',left_on='menu_name',right_on='menu_name')
+    summary['menu_total'] = summary['menu_count'].astype(int) * summary['menu_price'].astype(float)
+    summary
+
+    summary_report = dict()
+
+    summary_report['Total cup'] = summary['menu_count'].astype(int).sum()
+    summary_report['Total cost / cup'] = summary['menu_total'].astype(int).sum()
+    summary_report['Most ordered coffee'] = ','.join(list(summary[summary['menu_count'] == \
+                                                                max(summary['menu_count'])]['menu_name'].values))
+
+    summary_report['Least ordered coffee'] = ','.join(list(summary[summary['menu_count'] == \
+                                                                min(summary['menu_count'])]['menu_name'].values))
+
+    return [summary,summary_report]
+
+@app.route("/admin_record/<name>",methods=['GET'])
+@login_required
+@access_template_required(['Admin'])
+def admin_order(name):
+    if name == 'monthly':
+        now = datetime.now().today()
+        min = datetime.strftime(now,"%Y-%m-01")
+        max = datetime.strftime(now,"%Y-%m-%d")
+        order_tr = select_order_list(min_date=min,max_date=max)
+        menu_df = select_cat_menu()
+        # print(order_tr,menu_df)
+    
+        
+        df = to_pd(order_tr)
+        menu_df = to_pd(menu_df,'a')
+        summary,summary_report = summary_report_func(df,menu_df)
+        summary.columns = [x.replace("menu_","") for x in summary.columns]
+
+    return render_template('admin_record.html',min=min,max=max,order_tr=order_tr,
+                            summary=summary,summary_report=summary_report)
+# Function for admin #
 
     
 if __name__ == '__main__':

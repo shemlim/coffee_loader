@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Gethsemane Cafe | Coffee Ordering</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />  
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{url_for('static',filename='javascript/assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet"> 
+
+    <!-- Custom fonts Icons --> 
+    <link href="{{url_for('static',filename='javascript/assets/vendor/fontawesome/css/all.min.css')}}" rel="stylesheet">   
+
+    <!-- Custom styles -->  
+    <link href="{{url_for('static',filename='javascript/assets/css/style.css')}}" rel="stylesheet">
+    <script src="{{url_for('static',filename='javascript/assets/vendor/jquery/jquery.min.js')}}"></script>  
+    <script src="{{url_for('static',filename='javascript/assets/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
+    <script src="{{url_for('static',filename='javascript/assets/vendor/jquery-easing/jquery.easing.min.js')}}"></script>  
+    <script src="{{url_for('static',filename='javascript/assets/js/custom_script.js')}}"></script> 
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
+</head>
+{% block content %}
+<body class="bg-theme">
+    <div id="main_app">
+        <!-- Header -->
+        <nav class="navbar navbar-expand-lg navbar-light mt-2" id="mainNav"> 
+            <h3 class="mx-auto display-block">Gethsemane Cafe</h3>
+            <hr class="gold-hr-color" />
+            <!-- Table name -->
+            
+            {% if priority == 1 %}
+                <h4 class="mx-auto display-block my-2">Table {{ table_order }} - PRIORITY FOR ELDER</h4>
+            {%else%}
+                <h4 class="mx-auto display-block my-2">Table {{ table_order }}</h4>
+            {%endif%}
+        </nav> 
+
+        <style>
+            
+        </style>
+        <div class="container-fluid my-3">
+            <div class="row">
+                {% for x,y in menu_dict.items() %}
+                    {% set min_btn = x + "_btn_m" %}
+                    {% set plus_btn = x + "_btn" %}
+                    <!-- Edit Starts Here -->
+                    <div class="col-md-6 col-sm-12">
+                        <div class="g-cafe-card display-block p-3"> 
+                            <div class="g-cafe-menu-img my-2">
+                                <!-- Image -->
+                                <img src="{{y['image']}}" alt="">
+                            </div>
+                            <div class="g-cafe-card-content w-100 my-3">
+                                <div class="g-cafe-info">
+                                    <!-- Name -->
+                                    <h5 class="font-secondary-color text-center">{{x}}</h5>
+                                    <!-- Price -->
+                                    <p class="mb-0 text-center"><i class="fa-solid fa-mug-hot"></i>&nbsp;&nbsp;RM {{y['price']}}</p>
+                                    <hr class="my-3" />
+                                    <div class="num-cup-wrap mt-3">
+                                        <!-- Minus Button -->
+                                        <div class="count-minus"><i class="fa-solid fa-circle-minus"
+                                            id="{{min_btn}}" onclick="minusCounter(this.id)"></i></div>
+
+                                        <input type="text" value="0" class="form-control text-center mx-2"
+                                                id="{{x}}">
+                                        <!-- Plys Button -->
+                                        <div class="count-add"><i class="fa-solid fa-circle-plus"
+                                             id="{{plus_btn}}" onclick="addCounter(this.id)"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            
+
+                            {% if y['is_active'] == False %}
+                                <div class="unavailable-wrap d-flex justify-content-center align-items-center"> 
+                                    <h3>Not Available</h3> 
+                                </div>
+                            {%endif%}
+
+                        </div>
+                    </div>
+
+            
+                {%endfor%}
+
+                <!-- Edit Ends Here -->
+                <div class="col-12 my-5">
+                    <button type="submit" onclick="submitFunc()" class="btn btn-lg btn-cafe-theme w-100">Submit</button>
+                </div>
+            </div>
+        </div>     
+    </div>
+    
+    <form action="{{ url_for('recieve_coffee_order') }}"  method="POST" id="theForm">
+        <input type="hidden" id="all_input" name="all_input" value="{{ ','.join(list(menu_dict.keys())) }}">
+        <input type="hidden" id="table_order" name="table_order" value="{{ table_order }}">
+        <input type="hidden" id="priority" name="priority" value="{{ priority }}">
+    </form>
+
+    {% block javascript %}
+            <script>
+                function submitFunc(){
+                    hidden_value = document.getElementById("all_input").value
+                    console.log(hidden_value)
+                    hidden_value = hidden_value.split(",")
+                    
+                    text = '';
+                    alert_text = '';
+                    total_val = 0;
+                    for (let i = 0; i < hidden_value.length; i++) {
+                        coffee_val = document.getElementById(hidden_value[i]).value
+                        total_val += parseInt(coffee_val);
+                        if (coffee_val > 0){
+                            text += coffee_val + "x" + hidden_value[i] + ",";
+                        }
+                        if (coffee_val > 0){
+                            alert_text += coffee_val + "x " + hidden_value[i] + "\n";
+                        }
+                    }
+                    // document.getElementById("all_input").value = text + String(total_val) + "xTotal Order"
+                    if(total_val > 0){
+                        a = swal({
+                        title: "Are you already checked the order twice?",
+                        text: "Once ordered, you can not change it anymore!\n" + alert_text,
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                        })
+                        .then((willDelete) => {
+                            
+                            if (willDelete) {
+                                document.getElementById("all_input").value = text + String(total_val)
+                                swal("Your coffee order has been listed!", {
+                                icon: "success",
+                                });
+                                var timesRun = 0;
+                                var interval = setInterval(function(){
+                                    timesRun += 1;
+                                    if(timesRun === 1){
+                                        clearInterval(interval);
+                                    }
+                                    document.getElementById('theForm').submit();
+                                }, 1200); 
+                            }
+                        });
+                    }else{
+                        a = swal({
+                        title: "You have no order! Please add your coffee first.",
+                        text: "Once ordered, you can not change it anymore!",
+                        icon: "warning",
+                        dangerMode: true,
+                        });
+                    }
+                }
+                function addCounter(btn_id) {
+                    id = btn_id.split("_")[0]
+                    counter_val = parseInt(document.getElementById(id).value)
+                    if (counter_val + 1 > 0){
+                        document.getElementById(btn_id+"_m").disabled = false
+                    }
+                    document.getElementById(id).value = counter_val + 1
+                }
+
+                function minusCounter(btn_id) {
+                    id = btn_id.split("_")[0]
+                    counter_val = parseInt(document.getElementById(id).value)
+                    if (counter_val - 1 == 0){
+                        document.getElementById(id).value = counter_val - 1
+                        document.getElementById(btn_id).disabled = true;
+                    }
+                    else{
+                        document.getElementById(id).value = counter_val - 1
+                        document.getElementById(btn_id).disabled = false;
+                    }
+                }
+                
+            </script>
+
+        {% endblock %}
+
+{%endblock%}
+</body>
+</html>
