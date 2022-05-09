@@ -35,7 +35,7 @@ def select_cat_menu():
 ## For order menu category ##
 
 
-def connection(local='a'):
+def connection(local='server'):
     if local == 'server':
         # For server
         conn = psycopg2.connect(
