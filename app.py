@@ -105,7 +105,7 @@ def coffee_getter(name=None):
     
     if (request.method == 'POST'):
         print(name,request.form['table'])
-        return render_template("ordercoffee.html",menu_dict=d_cat_menu,list=list,table_order=name,priority=1,
+        return render_template("index.html",menu_dict=d_cat_menu,list=list,table_order=name,priority=1,
                                 name=session['waiter_name'])
 
 
