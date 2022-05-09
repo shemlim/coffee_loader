@@ -90,10 +90,11 @@ hr.gold-hr-color { margin: 0 auto; width: 100%;border: 0;height: 1px;background-
 **********************************************************************/   
 .g-cafe-card{background: -webkit-linear-gradient(45deg, #272526 10%, #373432 90%);background: linear-gradient(45deg, #272526 10%, #373532 90%);position:relative;color:#fff;border-radius:5px;border: 1px solid #c7a780;box-shadow: 0 0px 12px rgb(199 167 128 / 50%);margin-top: 12px;}
 .g-cafe-card .g-cafe-board{display:block;margin-top:-28px;width:80%;border:0.2rem outset #c7a780;border-radius:10px;background-image: linear-gradient(160deg, #272526 10%, #373532 90%);color: #c7a780;}
-.g-cafe-card .g-cafe-menu-img img{width:100%;height: 169px;object-fit: cover;}
+.g-cafe-card .g-cafe-menu-img img{width: 100%;height: 200px;object-fit: contain;object-position: bottom;}
 .g-cafe-card .g-cafe-card-content{display: flex;flex-wrap: wrap;align-items:center;} 
-.g-cafe-card .g-cafe-card-content .g-cafe-info{width:100%}
+.g-cafe-card .g-cafe-card-content .g-cafe-info{width:100%;}
 .g-cafe-card .g-cafe-card-content .g-cafe-info h5{font-family: 'PlayfairDisplay-Bold', sans-serif;font-size: 1.5rem;}
+.g-cafe-card .g-cafe-card-content .g-cafe-info p{letter-spacing: 2px;}
 .g-cafe-card .g-cafe-card-content img{width:100px;} 
 .g-cafe-card .g-cafe-card-content .g-cafe-info hr{margin: 0 auto;width: 100%;border: 0;height: 1px;background-image: linear-gradient(to right, rgb(48 46 45), rgb(199 167 128), rgb(48 46 45));}
 .num-cup-wrap{display: flex;justify-content: space-between;align-items: center;}
@@ -101,7 +102,7 @@ hr.gold-hr-color { margin: 0 auto; width: 100%;border: 0;height: 1px;background-
 .num-cup-wrap i:hover{cursor: pointer;}
 .num-cup-wrap input{background:transparent;border:0;font-size:1.5rem;color:#c7a780;}
 .num-cup-wrap input:focus{background:transparent;box-shadow: none;color: #c7a780;}
-.unavailable-wrap{position: absolute;height: 100%;width:100%;top:0;left:0;background-color: rgb(69 63 54 / 85%);color: #fff;}
+.unavailable-wrap{position: absolute;height: 100%;width:100%;top:0;left:0;background-color: rgb(69 63 54 / 85%);color: #fff;border-radius:5px;}
 @media(max-width:767px){
 	/* .g-cafe-card:nth-child(1){margin-top:50px;} */
 }
