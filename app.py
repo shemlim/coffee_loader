@@ -20,7 +20,7 @@ app.permanent_session_lifetime = timedelta(minutes=180)
 Bootstrap(app)
 ## Set connection up ##
 class Connection:
-    local = 'server'
+    local = 'a'
     # local = 'a'
     if local=='server':
         connection_path = "postgresql://vjrkfvpclacsbk:dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624@ec2-34-194-73-236.compute-1.amazonaws.com:5432/dcluovhf5udvoh"
@@ -97,7 +97,9 @@ def coffee_getter(name=None):
         return redirect(url_for("success"))
 
     for x in all_menu:
-        image = url_for('static', filename='upload_photo/{}.jpg'.format(str(x[1]).lower()))
+        file_image = str(x[1]).lower()
+        file_image = file_image if len(file_image.split(" ")) < 3 else str(x[8]).lower()
+        image = url_for('static', filename='upload_photo/{}.jpg'.format(file_image))
         d_cat_menu[x[1]] =  dict({'name':x[1],'status':x[2],"image":image,'is_active':x[6],'price':x[7]})
         print(x[6])
     
