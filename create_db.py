@@ -24,7 +24,7 @@ def insert_order(list_order,table_order,order_total,order_status,priority=1):
 ## For order menu category ##
 def select_cat_menu():
     conn,cur = connection()
-    sql = "select * from order_menu;"
+    sql = "select * from order_menu order by menu_available desc,menu_id;"
     cur.execute(sql)
 
     mobile_records = cur.fetchall()
@@ -79,7 +79,7 @@ def check_order_transac_list():
     conn.close()
     return mobile_records
 
-def select_order_list(order_id=None,rand_str=None,head=1,min_date=None,max_date=None):
+def select_order_list(order_id=None,rand_str=None,head=1,min_date=None,max_date=None,table_id=None):
     conn,cur = connection()
     sql = ''
     time = call_time()
@@ -99,11 +99,18 @@ def select_order_list(order_id=None,rand_str=None,head=1,min_date=None,max_date=
                     """select * from order_transac where order_id = {} and order_rand_str='{}' """\
                 .format(order_id,rand_str)
         else:
-            sql = """select * from order_transac where order_date >= '{}' and order_date <= '{}' and order_status = 1
-                    and order_rand_str is NULL
-                    order by order_priority,order_id
-                    limit {};"""\
-                    .format(min,max,head)
+            if table_id != None:
+                sql = """select * from order_transac where order_date >= '{}' and order_date <= '{}' and order_status = 1
+                        and order_rand_str is NULL and order_table = '{}'
+                        order by order_priority,order_id
+                        limit {};"""\
+                        .format(min,max,table_id,head)
+            else:
+                sql = """select * from order_transac where order_date >= '{}' and order_date <= '{}' and order_status = 1
+                        and order_rand_str is NULL
+                        order by order_priority,order_id
+                        limit {};"""\
+                        .format(min,max,head)
     else:
         min = min_date
         max = max_date

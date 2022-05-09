@@ -59,15 +59,16 @@
                                     <!-- Name -->
                                     <h5 class="font-secondary-color text-center">{{x}}</h5>
                                     <!-- Price -->
-                                    <p class="mb-0 text-center"><i class="fa-solid fa-mug-hot"></i>&nbsp;&nbsp;RM {{y['price']}}</p>
+                                    <p class="mb-0 text-center"><i class="fa-solid fa-mug-hot"></i>&nbsp;&nbsp;RM{{y['price']}}</p>
                                     <hr class="my-3" />
                                     <div class="num-cup-wrap mt-3">
                                         <!-- Minus Button -->
                                         <div class="count-minus"><i class="fa-solid fa-circle-minus"
-                                            id="{{min_btn}}" onclick="minusCounter(this.id)" style="display:none;"></i></div>
+                                            id="{{min_btn}}" onclick="minusCounter(this.id)" style="visibility: hidden;"></i></div>
 
                                         <input type="text" value="0" class="form-control text-center mx-2"
-                                                id="{{x}}">
+                                                id="{{x}}" onkeydown="if(event.key==='.'){event.preventDefault();}"  
+                                                oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');changeVal(this.id);">
                                         <!-- Plys Button -->
                                         <div class="count-add"><i class="fa-solid fa-circle-plus"
                                              id="{{plus_btn}}" onclick="addCounter(this.id)"></i></div>
@@ -105,6 +106,21 @@
 
     {% block javascript %}
             <script>
+                function changeVal(value){
+                    val = document.getElementById(value).value
+                    val = parseInt(val)
+                    
+                    if (val>20){
+                        document.getElementById(value).value = 20
+                    }
+                    if (val < 0 ){
+                        document.getElementById(value).value = 0
+                        document.getElementById(value +"_btn_m").style.visibility = "hidden";
+                    }
+                    else{
+                        document.getElementById(value +"_btn_m").style.visibility = "visible";
+                    }
+                }
                 function submitFunc(){
                     hidden_value = document.getElementById("all_input").value
                     console.log(hidden_value)
@@ -162,7 +178,7 @@
                     id = btn_id.split("_")[0]
                     counter_val = parseInt(document.getElementById(id).value)
                     if (counter_val + 1 > 0){
-                        document.getElementById(btn_id+"_m").style.display = "block"
+                        document.getElementById(btn_id+"_m").style.visibility = "visible"
                     }
                     document.getElementById(id).value = counter_val + 1
                 }
@@ -173,11 +189,11 @@
                     counter_val = parseInt(document.getElementById(id).value)
                     if (counter_val - 1 == 0){
                         document.getElementById(id).value = counter_val - 1
-                        document.getElementById(btn_id).style.display = "none";
+                        document.getElementById(btn_id).style.visibility = "hidden";
                     }
                     else{
                         document.getElementById(id).value = counter_val - 1
-                        document.getElementById(btn_id).style.display = "block";
+                        document.getElementById(btn_id).style.visibility = "visible";
                     }
                 }
                 

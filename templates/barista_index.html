@@ -1,118 +1,95 @@
 <!DOCTYPE html>
+<html lang="en">
 
-<html>
-    <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <title>Gethsemane Cafe | Coffee Ordering</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />  
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{url_for('static',filename='javascript/assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet"> 
+
+    <!-- Custom fonts Icons --> 
+    <link href="{{url_for('static',filename='javascript/assets/vendor/fontawesome/css/all.min.css')}}" rel="stylesheet">   
+
+    <!-- Custom styles -->  
+    <link href="{{url_for('static',filename='javascript/assets/css/style.css')}}" rel="stylesheet">
     <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery3.6.0.js') }}"></script>
-    
-    <style>
-        
-        #myBtn {
-        
-            position: fixed;
-            bottom: 20px;
-            right: 30px;
-            z-index: 99;
-            font-size: 18px;
-            border: none;
-            outline: none;
-            background-color: red;
-            color: white;
-            cursor: pointer;
-            padding: 15px;
-            border-radius: 4px;
-        }
+</head>
 
-        #refreshBut {
-        
-            font-size: 18px;
-            border: none;
-            outline: none;
-            background-color: burlywood;
-            color: white;
-            cursor: pointer;
-            padding: 15px;
-            border-radius: 4px;
-        }
-        
-        #myBtn:hover {
-            background-color: #555;
-            }
-        
-    </style>
-    <title>
-        Barista Order List
-    </title>
-    </head>
-    {% block content %}
-            {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                    
-                    <h3 style="color:red">{{ messages[0] }}</h3> 
-                    
-                {% endif %}
-            {% endwith %}
-        {% if order_total > 0 %}
-            
-            {% set order_table = order_tr[1] %}
-            {% set order_details = order_tr[2] %}
-            {% set order_priority = order_tr[3]%}
-            {% set order_id = order_tr[0] %}
 
-            <h2 style="text-align:center">Hi, {{ name }}</h2>
-            <h1 style="text-align:center">Order for TABLE {{ order_table }} - Priority number {{order_priority}}</h1>
-            <button onclick="delFunc()">Delete this order</button>
-            <hr>
-            
-                {% for x in order_details.split(",") %}
-                    {% set value = x.split("x")[0] | int %}
+{% block content %}
+    {% if order_total > 0 %}
+        <body class="bg-theme">
+            <div id="main_app">
+                <!-- Header -->
+                <nav class="navbar navbar-expand-lg navbar-light mt-2" id="mainNav"> 
+                    <h3 class="mx-auto display-block">Gethsemane Cafe</h3>
+                    <hr class="gold-hr-color" />
+                    <!-- Table name -->
                     
-                    {% set img = order_img[x] %}
-                    {% set img = 'upload_photo/'+img +".jpg" %}
-                    <h1>{{img}}</h1>
-                    {% if value > 0 %}
-                    <table>
-                        <tr>
-                            <td rowspan="2">
-                                <img src= "{{ url_for('static',filename=img) }}" alt="Mocca" height="75" width="100">
-                                
-                            </td>
+                    {% set order_table = order_tr[1] %}
+                    {% set order_details = order_tr[2] %}
+                    {% set order_priority = order_tr[3]%}
+                    {% set order_id = order_tr[0] %}
+                    <h4 class="mx-auto display-block my-2">Table {{ order_table }} - PRIORITY NUMBER {{order_priority}}</h4>
+                    
+                </nav> 
+                <button onclick="delFunc()" type="button" style="margin-left:18px" 
+                class="btn btn-light">Delete this order</button>
+                <!-- <style></style> -->
+
+                <div class="container-fluid my-3">
+                    <div class="row">
+                        {% for x in order_details.split(",") %}
+                            {% set value = x.split("x")[0] | int %}
+                            {% set img = order_img[x] %}
+                            {% set img = 'upload_photo/'+img +".jpg" %}
                             
-                        </tr>
-                        <tr>
-                            <td><h1 style="font-family: 'Arial Black', cursive;font-size: 2em;">
-                                {{ 'x '.join(x.split("x")) }}</h1>
-                                
-                            </td>
-                            
-                        </tr>
-                    </table>
-                    <hr>
-                    {%endif%}
-                    
-                {% endfor %}
-            
-            
-        {% else %}
-            <h1 id="text">Hi {{name}}, just relax first while waiting for order = {{ order_total }}</h1>
-            <button id="refreshBut" onclick="refreshGo()" style="display:none;">Refresh to recieve order</button>
-            <input type="hidden" value="no order" id="no_order">
-        {% endif %}
 
-        <form action="{{ url_for('barista_finish_order') }}"  method="POST" id="theForm">
-            <input type="hidden" value="{{ order_table }}" id="order_table" name="order_table">
-            <input type="hidden" value="{{ order_id }}" id="order_id" name="order_id">
-            <input type="hidden" value="{{ order_total }}" id="order_total">
-            <input type="hidden" value="no delete" id="order_delete" name="order_delete">
-        </form>
+                            <!-- Edit Starts Here -->
+                            <div class="col-md-6 col-sm-12 d-flex" style="width:200px;">
+                                <div class="g-cafe-card display-block p-3">
+                                    <div class="g-cafe-menu-img my-2">
+                                        <!-- Image -->
+                                        <img src="{{ url_for('static',filename=img) }}" style="height:100px" alt="">
+                                    </div>
 
-        <button onclick="submitFunc()" id="myBtn" title="Go to top" >Order Done</button>
-        
-    {% endblock %}
+                                    <div class="g-cafe-card-content w-100 my-3">
+                                        <div class="g-cafe-info">
+                                            <!-- Name -->
+                                            <h5 class="font-secondary-color text-center">{{ 'x '.join(x.split("x")) }}</h5>
+                                            <!-- Price -->
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        {%endfor%}
+                        <div class="col-12 my-5">
+                            <button type="submit" onclick="submitFunc()" class="btn btn-lg btn-cafe-theme w-100">Order Done</button>
+                        </div>
+                    </div>
+                </div>     
+            </div>
+
+    {% else %}
+        <h1 id="text">Hi {{name}}, just relax first while waiting for order = {{ order_total }}</h1>
+        <button id="refreshBut" onclick="refreshGo()" style="display:none;">Refresh to recieve order</button>
+        <input type="hidden" value="no order" id="no_order">
+    {% endif %}
+    <form action="{{ url_for('barista_finish_order') }}"  method="POST" id="theForm">
+        <input type="hidden" value="{{ order_table }}" id="order_table" name="order_table">
+        <input type="hidden" value="{{ order_id }}" id="order_id" name="order_id">
+        <input type="hidden" value="{{ order_total }}" id="order_total">
+        <input type="hidden" value="no delete" id="order_delete" name="order_delete">
+    </form>
     
+
     {% block javascript %}
             <script>
                 var run_swal = 0
@@ -210,6 +187,9 @@
                     },5000);
                 
             </script>
-    {% endblock %}
 
+        {% endblock %}
+
+{%endblock%}
+</body>
 </html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Gethsemane Cafe | Coffee Ordering</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />  
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{url_for('static',filename='javascript/assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet"> 
+
+    <!-- Custom fonts Icons --> 
+    <link href="{{url_for('static',filename='javascript/assets/vendor/fontawesome/css/all.min.css')}}" rel="stylesheet">   
+
+    <!-- Custom styles -->  
+    <link href="{{url_for('static',filename='javascript/assets/css/style.css')}}" rel="stylesheet">
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery3.6.0.js') }}"></script>
+</head>
+
+
+{% block content %}
+
+    <body class="bg-theme">
+        <div id="main_app" >
+            <!-- Header -->
+            <nav class="navbar navbar-expand-lg navbar-light mt-2" id="mainNav"> 
+                <h3 class="mx-auto display-block">Gethsemane Cafe</h3>
+                <hr class="gold-hr-color" />
+                <!-- Table name -->
+            </nav>
+            <h5 class="font-secondary-color text-center">Search for table : </h5>
+            <div class="num-cup-wrap mt-3 ">
+                
+                <form id="searchFunc" action="{{url_for('senior_barista')}}" style="display:flex">
+                    <input type="text" placeholder="Input table number" value="{{search}}" class="form-control text-center mx-2" name="search"
+                                                id="search" onkeydown="if(event.key==='.'){event.preventDefault();}"  
+                                                oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');changeVal(this.id);">
+                </form>
+                
+                
+                <a href="#" onclick="document.getElementById('searchFunc').submit();">
+                    <i class="fas fa-search"></i>
+                </a>
+            </div>
+            {% set order_tr_len = order_tr | length %}
+            {% if order_tr_len > 0 %}
+                <div class="container-fluid my-3">
+                {% for x in order_tr %}
+                    <div class="col">
+                        <div class="g-cafe-card display-block p-3">
+                                <!-- Image -->
+                                <table class="table" >
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <h5 class="font-secondary-color text-left">TABLE-{{x[1]}}<br><br>PRIORITY-{{x[3]}}</h5>
+                                            </td>
+                                            
+                                            
+                                            <td>
+                                                <h5 class="font-secondary-color text-left">
+                                                    List of order
+                                                    
+                                                    {% set detail = x[2].split(",") %}
+                                                    {% set len_detail = detail | length %}
+                                                    {% set min_detail = len_detail - 3 %}
+                                                    {% if min_detail > 0 %}
+                                                        {% for y in range(0,3) %}
+                                                            {% set temp = detail[y] | string %}
+                                                            {% set num_of_order,type_of_order = temp.split("x") %}
+                                                            {% set num_of_order = num_of_order | int %}
+                                                            {% if num_of_order > 0 %}
+                                                                <li>{{num_of_order}} {{type_of_order}}</li>
+                                                            {%endif%}
+
+                                                            {% if y == 2 %}
+                                                                <li>+{{min_detail}} more coffee</li>
+                                                            {%endif%}
+                                                        {%endfor%}
+                                                    {%else%}
+                                                        {% for y in range(0,len_detail) %}
+                                                            {% set y = detail[y] | string %}
+                                                            {% set num_of_order,type_of_order = y.split("x") %}
+                                                            {% set num_of_order = num_of_order | int %}
+                                                            {% if num_of_order > 0 %}
+                                                                <li>{{num_of_order}} {{type_of_order}}</li>
+                                                            {%endif%}
+                                                        {%endfor%}
+                                                    {% endif %}
+                                                </h5>
+                                                
+                                                <input type='hidden' id="order_tr_{{x[0]}}" name="order_tr_{{x[0]}}">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="row">
+                                    <button id="order_{{x[0]}}" type="button"
+                                            onclick="submitFunc(this.id)" class="btn btn-light">Take this</button>
+                                
+                                </div>
+                                
+                        </div>
+                    </div>
+                {%endfor%}
+                </div>     
+            </div>
+            {%endif%}
+    
+            <form action="{{ url_for('senior_barista') }}"  method="POST" id="theForm">
+                <input type='hidden' value="" id="order_id" name="order_id">
+            </form>
+
+    {% block javascript %}
+            <script>
+               function submitFunc(id){
+                    var order_id = id.split("_")[1]
+                    
+                    document.getElementById("order_id").value = order_id
+                    
+                    document.getElementById('theForm').submit();
+
+                }
+            </script>
+
+        {% endblock %}
+
+{%endblock%}
+</body>
+</html>

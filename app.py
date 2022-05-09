@@ -97,8 +97,8 @@ def coffee_getter(name=None):
         return redirect(url_for("success"))
 
     for x in all_menu:
-        file_image = str(x[1]).lower()
-        file_image = file_image if len(file_image.split(" ")) < 3 else str(x[8]).lower()
+        file_image = str(x[1]).lower().split(" ")
+        file_image = " ".join(file_image) if len(file_image) <3 else " ".join([y[0] for y in file_image])
         image = url_for('static', filename='upload_photo/{}.jpg'.format(file_image))
         d_cat_menu[x[1]] =  dict({'name':x[1],'status':x[2],"image":image,'is_active':x[6],'price':x[7]})
         print(x[6])
@@ -229,6 +229,17 @@ def login_barista():
     return render_template('login.html',form=form)
 ## Login for barista ##
 
+def load_order_img(order_tr):
+    order_img = dict()
+    for x in order_tr[2].split(","):
+        temp = x.split("x")[1]
+        temp = temp.split(" ")
+        if len(temp) > 2:
+            order_img[x] = " ".join([y[0] for y in temp]).lower()
+        else:
+            order_img[x] = " ".join(temp).lower()
+            
+    return order_img
 
 @app.route("/check_barista_order")
 @login_required
@@ -246,16 +257,19 @@ def barista_get_order():
     if (user.barista_job == 'Senior Barista'):
         return redirect(url_for('senior_barista'))
 
+    
     if (session['barista_order_id'] != None) & (user.barista_order_id != None):
+        
         order_tr = select_order_list(int(session['barista_order_id']))[0]
         if order_tr[6] == 2:
             order_id = order_tr[0]
             order_table = order_tr[1]
             order_total = order_tr[4]
+            order_img = load_order_img(order_tr)
             session['after_login'] = 1
-            return render_template('barista_order_list.html',name = session['barista_name'],order_total=order_total
-            ,order_tr=order_tr)
-
+            return render_template('barista_index.html',name = session['barista_name'],order_total=order_total
+            ,order_tr=order_tr,order_img=order_img)
+    
     len_order = check_order_transac_list()[0][0]
     
     if len_order >= 1:
@@ -265,6 +279,7 @@ def barista_get_order():
         order_id = order_tr[0]
         order_table = order_tr[1]
         order_total = order_tr[4]
+
         random_string = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(30))
         update_order_rndstr(random_string,order_id)
         
@@ -275,6 +290,7 @@ def barista_get_order():
             order_id = order_tr[0]
             order_table = order_tr[1]
             order_total = order_tr[4]
+            order_img = load_order_img(order_tr)
 
             # Update order barista
             user.barista_order_id = order_id
@@ -285,10 +301,10 @@ def barista_get_order():
             db.session.commit()
         except Exception as e:
             flash("Your order has been taken by the others.")
-            return render_template('barista_order_list.html',name = session['barista_name'],order_total=0)
+            return render_template('barista_index.html',name = session['barista_name'],order_total=0)
             # print(e)
-        return render_template('barista_order_list.html',name = session['barista_name'],order_total=order_total
-        ,order_tr=order_tr)
+        return render_template('barista_index.html',name = session['barista_name'],order_total=order_total
+        ,order_tr=order_tr,order_img=order_img)
         
     else:
         user.barista_hold_table = None
@@ -300,7 +316,7 @@ def barista_get_order():
         # session['barista_status'] = user.barista_status
         session['barista_order_id'] = user.barista_status
         db.session.commit()
-        return render_template('barista_order_list.html',name = session['barista_name'],order_total=0)
+        return render_template('barista_index.html',name = session['barista_name'],order_total=0)
 
 
 @app.route('/senior_barista',methods=['GET'])
@@ -308,25 +324,44 @@ def barista_get_order():
 @login_required
 @access_template_required(['Senior Barista'])
 def senior_barista():
+    search = request.args.get('search')
+    search = '' if len(search) == 0 else search
+    session['search'] = search
     # Later change the head
-    order_tr = select_order_list(head=100)
+    order_tr = select_order_list(head=100) if search == '' else select_order_list(head=100,table_id=search)
     user = User.query.filter_by(barista_id = session['barista_id']).first()
+    # print(order_tr,search)
+    if (session['barista_order_id'] != None) & (user.barista_order_id != None):
+        order_tr = select_order_list(int(session['barista_order_id']))[0]
+        
+        if order_tr[6] == 2:
+            order_id = order_tr[0]
+            order_table = order_tr[1]
+            order_total = order_tr[4]
+            order_img = load_order_img(order_tr)
+            session['after_login'] = 1
+            return render_template('barista_index.html',name = session['barista_name'],order_total=order_total
+            ,order_tr=order_tr,order_img=order_img)
+
     if (request.method == 'POST'):
         order_id = request.form['order_id']
         order_tr = select_order_list()[0]
         order_id = order_tr[0]
         order_table = order_tr[1]
         order_total = order_tr[4]
+        
         random_string = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(30))
         update_order_rndstr(random_string,order_id)
         
         try:
+            print(random_string)
             update_order_list(session['barista_name'],order_id,random_string)
             order_tr = select_order_list(order_id=order_id,rand_str=random_string)[0]
             order_id = order_tr[0]
             order_table = order_tr[1]
             order_total = order_tr[4]
-
+            order_img = load_order_img(order_tr)
+            
             # Update order barista
             user.barista_order_id = order_id
             user.barista_hold_table = order_table
@@ -336,15 +371,22 @@ def senior_barista():
             db.session.commit()
 
         except Exception as e:
+            print(e)
             flash("Your order has been taken by the others.")
-            return redirect(url_for("senior_barista"))
+            # return redirect(url_for("senior_barista"))
+            return str(e)
             # print(e)
-        return render_template('barista_order_list.html',name = session['barista_name'],order_total=order_total
-        ,order_tr=order_tr)
+        return render_template('barista_index.html',name = session['barista_name'],order_total=order_total
+        ,order_tr=order_tr,order_img=order_img)
 
-    return render_template('barista_order_list_senior.html',name = session['barista_name'],
+    return render_template('barista_index_senior.html',name = session['barista_name'],
+                order_tr=order_tr,zip=zip,search=search)
+
+@app.route("/senior_barista_search/<search>")
+def senior_barista_search(search):
+    order_tr = select_order_list(head=100,table_id=search)
+    return render_template('barista_index_senior.html',name = session['barista_name'],
                 order_tr=order_tr,zip=zip)
-
 
 @app.route("/barista_finish",methods=['POST'])
 @access_template_required(['Barista','Senior Barista'])
@@ -379,15 +421,15 @@ def waiter_order():
     print("ya")
     return render_template('cth.html')
 
-@app.route('/waiter_coffee_list',methods=['GET'])
-@login_required
-@access_template_required(["Waiter"])
-def waiter_coffee_list():
-    # Later change the head
-    order_tr = select_order_status_list()
+# @app.route('/waiter_coffee_list',methods=['GET'])
+# @login_required
+# @access_template_required(["Waiter"])
+# def waiter_coffee_list():
+#     # Later change the head
+#     order_tr = select_order_status_list()
     
-    return render_template('coffee_order_list.html',name = session['waiter_name'],
-                order_tr=order_tr,zip=zip)
+#     return render_template('coffee_order_list.html',name = session['waiter_name'],
+#                 order_tr=order_tr,zip=zip)
 # Function for waiter #
 
 # Function for admin #
