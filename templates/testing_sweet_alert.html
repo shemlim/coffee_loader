@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Gethsemane Cafe | Coffee Ordering</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert2.all.js') }}"></script>
+
+</head>
+{%block content%}
+    {% block script%}
+        <script>
+            Swal.fire({
+                title: 'Custom width, padding, color, background.',
+                width: 600,
+                padding: '3em',
+                color: '#716add',
+                background: '#fff url(https://sweetalert2.github.io/images/trees.png)',
+                backdrop: `
+                    rgba(0,0,123,0.4)
+                    url("https://sweetalert2.github.io/images/nyan-cat.gif")
+                    left top
+                    no-repeat
+                `
+                })
+        </script>
+    {%endblock%}
+{%endblock%}
+
+</html>

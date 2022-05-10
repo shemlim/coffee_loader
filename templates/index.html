@@ -17,10 +17,7 @@
 
     <!-- Custom styles -->  
     <link href="{{url_for('static',filename='javascript/assets/css/style.css')}}" rel="stylesheet">
-    <!-- <script src="{{url_for('static',filename='javascript/assets/vendor/jquery/jquery.min.js')}}"></script>  
-    <script src="{{url_for('static',filename='javascript/assets/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>
-    <script src="{{url_for('static',filename='javascript/assets/vendor/jquery-easing/jquery.easing.min.js')}}"></script>  
-    <script src="{{url_for('static',filename='javascript/assets/js/custom_script.js')}}"></script>  -->
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery3.6.0.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
 </head>
 {% block content %}
@@ -47,17 +44,24 @@
                 {% for x,y in menu_dict.items() %}
                     {% set min_btn = x + "_btn_m" %}
                     {% set plus_btn = x + "_btn" %}
+                    {% set desc_id = x + "_desc_" %}
+                    {% set desc_id2 = x + "_desc" %}
+
                     <!-- Edit Starts Here -->
+
+                    <input type="hidden" id="{{desc_id}}" value="{{y['desc']}}">
                     <div class="col-md-6 col-sm-12 d-flex">
                         <div class="g-cafe-card display-block p-3">
-                            <div class="g-cafe-menu-img my-2">
+                            <div class="g-cafe-menu-img my-2" onclick="descFunc(this)" id="{{desc_id2}}">
                                 <!-- Image -->
                                 <img src="{{y['image']}}" alt="">
                             </div>
                             <div class="g-cafe-card-content w-100 my-3">
                                 <div class="g-cafe-info">
                                     <!-- Name -->
-                                    <h5 class="font-secondary-color text-center">{{x}}</h5>
+                                    <h5 class="font-secondary-color text-center">
+                                        <a >{{x}}</a>
+                                    </h5>
                                     <!-- Price -->
                                     <p class="mb-0 text-center"><i class="fa-solid fa-mug-hot"></i>&nbsp;&nbsp;RM{{y['price']}}</p>
                                     <hr class="my-3" />
@@ -106,6 +110,21 @@
 
     {% block javascript %}
             <script>
+                function descFunc(val){
+                    coffee = val.id
+                    coffee_name = coffee.split("_")[0]
+                    desc_text = document.getElementById(coffee+"_").value
+                    var src = $(val).find('img').attr('src');
+                    const el = document.createElement('div')
+                    el.innerHTML = "<h5 class='font-secondary-color text-center'>"+coffee_name+"</h5>\
+                                    <img src='"+src+"' style='width:100px'><br><h5 class='font-secondary-color text-center'>"+desc_text
+                    console.log(el)
+                    swal({
+                    content: el
+                    })
+                    
+                    
+                }
                 function changeVal(value){
                     val = document.getElementById(value).value
                     val = parseInt(val)
@@ -113,11 +132,11 @@
                     if (val>20){
                         document.getElementById(value).value = 20
                     }
-                    if (val < 0 ){
+                    if (val <= 0 ){
                         document.getElementById(value).value = 0
                         document.getElementById(value +"_btn_m").style.visibility = "hidden";
                     }
-                    else{
+                    if(val>0){
                         document.getElementById(value +"_btn_m").style.visibility = "visible";
                     }
                 }

@@ -20,7 +20,7 @@ app.permanent_session_lifetime = timedelta(minutes=180)
 Bootstrap(app)
 ## Set connection up ##
 class Connection:
-    local = 'server'
+    local = 'a'
     # local = 'a'
     if local=='server':
         connection_path = "postgresql://vjrkfvpclacsbk:dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624@ec2-34-194-73-236.compute-1.amazonaws.com:5432/dcluovhf5udvoh"
@@ -79,7 +79,7 @@ def access_template_required(title=[],url='main.index',list_div_id= None):
 @app.route('/')
 def success():
     
-    return "Please wait for your coffee"
+    return render_template('testing_sweet_alert.html')
 
 @app.route('/getcoffee/<name>',methods=['GET'])
 @app.route('/getcoffee',methods=['POST'])
@@ -100,7 +100,8 @@ def coffee_getter(name=None):
         file_image = str(x[1]).lower().split(" ")
         file_image = " ".join(file_image) if len(file_image) <3 else " ".join([y[0] for y in file_image])
         image = url_for('static', filename='upload_photo/{}.jpg'.format(file_image))
-        d_cat_menu[x[1]] =  dict({'name':x[1],'status':x[2],"image":image,'is_active':x[6],'price':x[7]})
+        d_cat_menu[x[1]] =  dict({'name':x[1],'status':x[2],"image":image,'is_active':x[6],
+                                'price':x[7],'desc':x[4]})
         print(x[6])
     
     if (request.method == 'POST'):
@@ -324,8 +325,10 @@ def barista_get_order():
 @login_required
 @access_template_required(['Senior Barista'])
 def senior_barista():
-    search = request.args.get('search')
-    search = '' if len(search) == 0 else search
+    
+    search = request.args.get('search') 
+    if search == None:search=''
+    search = '' if (len(search) == 0) else search
     session['search'] = search
     # Later change the head
     order_tr = select_order_list(head=100) if search == '' else select_order_list(head=100,table_id=search)
