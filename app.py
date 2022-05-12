@@ -79,7 +79,7 @@ def access_template_required(title=[],url='main.index',list_div_id= None):
 @app.route('/')
 def success():
     
-    return render_template('testing_sweet_alert.html')
+    return "Please wait for your coffee. Love from TJC PJ."
 
 @app.route('/getcoffee/<name>',methods=['GET'])
 @app.route('/getcoffee',methods=['POST'])

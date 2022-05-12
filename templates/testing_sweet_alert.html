@@ -8,27 +8,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert2.all.js') }}"></script>
+    <script type="text/javascript" src="sweetalert.min.js"></script> 
 
+    <style type="text/css">
+        .swal-overlay{background-color: rgb(0 0 0 / 70%);}
+        .swal-overlay--show-modal .swal-modal{background: -webkit-linear-gradient(45deg, #272526 10%, #373432 90%);background: linear-gradient(45deg, #272526 10%, #373532 90%);position:relative;color:#fff;border-radius:5px;border: 1px solid #c7a780;box-shadow: 0 0px 10px rgb(199 167 128);}
+        .swal-button {background: linear-gradient(to left, #6d5c46, #a99073, #6d5c46);border: 2px solid #e0c5a3;}
+        .swal-button:focus{box-shadow: none;}
+        .swal-footer {text-align: center;}
+        .g-modal{position: relative;}
+        .g-modal h5:first-child{font-family: 'PlayfairDisplay-Bold', sans-serif;font-size: 1.5rem;color: #c7a780;}
+        .g-modal h5.des-text{font-size: 1rem;font-weight: normal;} 
+    </style>
 </head>
-{%block content%}
-    {% block script%}
-        <script>
-            Swal.fire({
-                title: 'Custom width, padding, color, background.',
-                width: 600,
-                padding: '3em',
-                color: '#716add',
-                background: '#fff url(https://sweetalert2.github.io/images/trees.png)',
-                backdrop: `
-                    rgba(0,0,123,0.4)
-                    url("https://sweetalert2.github.io/images/nyan-cat.gif")
-                    left top
-                    no-repeat
-                `
-                })
-        </script>
-    {%endblock%}
-{%endblock%}
+
+
+<body>
+    <div id="wow">
+        gggooo
+    </div>
+</body>
+
+    <script>
+        const el = document.createElement('div')
+        el.classList.add("g-modal")
+        el.innerHTML = "<h5 class='font-secondary-color text-center'>Latte</h5>\
+                        <img src='assets/img/black.jpg' style='width:150px'><br><h5 class='my-4 text-white text-center des-text'>Verry Good Milk"
+        
+        swal({
+        content: el
+        })
+    </script>
 
 </html>

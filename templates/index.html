@@ -20,6 +20,16 @@
     <script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery3.6.0.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
 </head>
+    <style type="text/css">
+        .swal-overlay{background-color: rgb(0 0 0 / 70%);}
+        .swal-overlay--show-modal .swal-modal{background: -webkit-linear-gradient(45deg, #272526 10%, #373432 90%);background: linear-gradient(45deg, #272526 10%, #373532 90%);position:relative;color:#fff;border-radius:5px;border: 1px solid #c7a780;box-shadow: 0 0px 10px rgb(199 167 128);}
+        .swal-button {background: linear-gradient(to left, #6d5c46, #a99073, #6d5c46);border: 2px solid #e0c5a3;}
+        .swal-button:focus{box-shadow: none;}
+        .swal-footer {text-align: center;}
+        .g-modal{position: relative;}
+        .g-modal h5:first-child{font-family: 'PlayfairDisplay-Bold', sans-serif;font-size: 1.5rem;color: #c7a780;}
+        .g-modal h5.des-text{font-size: 1rem;font-weight: normal;} 
+    </style>
 {% block content %}
 <body class="bg-theme">
     <div id="main_app">
@@ -70,7 +80,7 @@
                                         <div class="count-minus"><i class="fa-solid fa-circle-minus"
                                             id="{{min_btn}}" onclick="minusCounter(this.id)" style="visibility: hidden;"></i></div>
 
-                                        <input type="text" value="0" class="form-control text-center mx-2"
+                                        <input type="text" placeholder="0" class="form-control text-center mx-2"
                                                 id="{{x}}" onkeydown="if(event.key==='.'){event.preventDefault();}"  
                                                 oninput="event.target.value = event.target.value.replace(/[^0-9]*/g,'');changeVal(this.id);">
                                         <!-- Plys Button -->
@@ -116,33 +126,42 @@
                     desc_text = document.getElementById(coffee+"_").value
                     var src = $(val).find('img').attr('src');
                     const el = document.createElement('div')
+                    el.classList.add("g-modal")
                     el.innerHTML = "<h5 class='font-secondary-color text-center'>"+coffee_name+"</h5>\
-                                    <img src='"+src+"' style='width:100px'><br><h5 class='font-secondary-color text-center'>"+desc_text
-                    console.log(el)
+                        <img src='"+src+"' style='width:150px'><br><h5 class='my-4 text-white text-center des-text'>"+desc_text
+                    
                     swal({
-                    content: el
+                        content: el
                     })
                     
                     
                 }
                 function changeVal(value){
                     val = document.getElementById(value).value
-                    val = parseInt(val)
-                    
+                    val = val >0 ? parseInt(val) : 0                    
                     if (val>20){
                         document.getElementById(value).value = 20
+                        // document.getElementById(value +"_btn").style.visibility = "hidden";
+
                     }
                     if (val <= 0 ){
                         document.getElementById(value).value = 0
                         document.getElementById(value +"_btn_m").style.visibility = "hidden";
                     }
-                    if(val>0){
+                    if(val>0 & val<=20){
                         document.getElementById(value +"_btn_m").style.visibility = "visible";
                     }
                 }
+
+                $('input').on('input propertychange paste', function (e) {
+                    var val = $(this).val()
+                    var reg = /^0/gi;
+                    if (val.match(reg)) {
+                        $(this).val(val.replace(reg, ''));
+                    }
+                });
                 function submitFunc(){
                     hidden_value = document.getElementById("all_input").value
-                    console.log(hidden_value)
                     hidden_value = hidden_value.split(",")
                     
                     text = '';
@@ -194,8 +213,10 @@
                     }
                 }
                 function addCounter(btn_id) {
+                    console.log(btn_id)
                     id = btn_id.split("_")[0]
-                    counter_val = parseInt(document.getElementById(id).value)
+                    val = document.getElementById(id).value
+                    counter_val = val > 0 ? parseInt(val) : 0
                     if (counter_val + 1 > 0){
                         document.getElementById(btn_id+"_m").style.visibility = "visible"
                     }
