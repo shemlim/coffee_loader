@@ -36,9 +36,11 @@
                     {% set order_details = order_tr[2] %}
                     {% set order_priority = order_tr[3]%}
                     {% set order_id = order_tr[0] %}
-                    <h4 class="mx-auto display-block my-2">Table {{ order_table }} - PRIORITY NUMBER {{order_priority}}</h4>
-                    
+                    <h4 class="mx-auto display-block my-2 text-center">Table <span style="font-size:44px;">{{ order_table }}</span>
+                        <br> PRIORITY <span style="font-size:44px">{{order_priority}}</span></h4>
+                    <hr class="gold-hr-color" />
                 </nav> 
+                <br>
                 <button onclick="delFunc()" type="button" style="margin-left:18px" 
                 class="btn btn-light">Delete this order</button>
                 <!-- <style></style> -->
