@@ -81,6 +81,10 @@
                     {% set plus_btn = x + "_btn" %}
                     {% set desc_id = x + "_desc_" %}
                     {% set desc_id2 = x + "_desc" %}
+                    {% set img = x + "_img" %}
+                    {% set img1 = x + "_img1" %}
+
+
 
                     <!-- Edit Starts Here -->
 
@@ -89,7 +93,8 @@
                         <div class="g-cafe-card display-block p-3">
                             <div class="g-cafe-menu-img my-2" onclick="descFunc(this)" id="{{desc_id2}}">
                                 <!-- Image -->
-                                <img src="{{y['image']}}" alt="">
+                                <img src="{{y['image']}}" alt="Click me to see the picture." width="100%" onerror="funcRep(this)" id="{{img}}">
+                                <input type="hidden" value="{{y['image']}}" id="{{img1}}">
                             </div>
                             <div class="g-cafe-card-content w-100 my-3">
                                 <div class="g-cafe-info">
@@ -156,6 +161,13 @@
                     document: true,
                     eventLag: false
                 };
+                var checkError = 0
+                function funcRep(val){
+                    if (checkError < 3){
+                        checkError +=1;
+                        document.getElementById(val.id).src = document.getElementById(val.id+'1').value
+                    }
+                }
                 function delay(delayInms) {
                     return new Promise(resolve => {
                         setTimeout(() => {

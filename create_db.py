@@ -2,7 +2,7 @@ import psycopg2
 from datetime import timedelta,datetime
 
 
-def call_time(local='server'):
+def call_time(local='a'):
     if local == 'server':
         date_now = datetime.now() + timedelta(hours=8)
     else:
@@ -37,7 +37,7 @@ def select_cat_menu():
 ## For order menu category ##
 
 
-def connection(local='server'):
+def connection(local='a'):
     if local == 'server':
         # For server
         conn = psycopg2.connect(
