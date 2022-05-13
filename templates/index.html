@@ -35,7 +35,16 @@
 
 <body class="bg-theme" >
     <div id="preloader">
-        <div class="p">Wait for the coffee being loaded</div>
+        <div>
+            
+            <div class="p" style="font-size:24px;width: 100%;text-align:center">
+                <img src="{{url_for('static',filename='upload_photo/loading2.gif')}}" width="100%" height="100%">
+                <br><br>
+                PJ Coffee Loading
+            </div>
+        </div>
+        
+
     </div>
     <div id="main_app" style="display:none;">
         <!-- Header -->
@@ -156,10 +165,11 @@
 
                     var diff = endTime-startTime
                     if(diff < 1){
+                        await delay(1500);
+                    }else{
                         await delay(1000);
                     }
-                    
-                    
+
                     if(a == 1){
                         
                         $('head').find('link#load').remove();
