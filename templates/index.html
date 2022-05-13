@@ -43,8 +43,17 @@
                 PJ Coffee Loading
             </div>
         </div>
-        
+    </div>
 
+    <div id="afterloader" style="background: linear-gradient(to bottom, #373532 70%, #645440 100%);background-attachment:fixed;display: none;">
+        <div>
+            
+            <div class="p" style="font-size:24px;width: 100%;text-align:center;color:white;">
+                <img src="{{url_for('static',filename='upload_photo/loading2.gif')}}" width="100%" height="100%">
+                <br><br>
+                Please don't close this page while your coffee order is listed.
+            </div>
+        </div>
     </div>
     <div id="main_app" style="display:none;">
         <!-- Header -->
@@ -126,7 +135,7 @@
         </div>     
     </div>
 </body>
-    <form action="{{ url_for('recieve_coffee_order') }}"  method="POST" id="theForm">
+    <form action="{{ url_for('recieve_coffee_order') }}"  method="POST" id="theForm" onsubmit="pageLoading()">
         <input type="hidden" id="all_input" name="all_input" value="{{ ','.join(list(menu_dict.keys())) }}">
         <input type="hidden" id="table_order" name="table_order" value="{{ table_order }}">
         <input type="hidden" id="priority" name="priority" value="{{ priority }}">
@@ -179,6 +188,13 @@
                     
                 })
                 
+                function pageLoading(){
+                    // $('head').find('link#content').remove();
+                    $('head').find('link#load').add();
+                    document.getElementById("main_app").style.display = "none";
+                    document.getElementById("afterloader").style.display = "block";
+
+                }
                 
 
                 function descFunc(val){
@@ -230,7 +246,9 @@
                     total_val = 0;
                     for (let i = 0; i < hidden_value.length; i++) {
                         coffee_val = document.getElementById(hidden_value[i]).value
-                        total_val += parseInt(coffee_val);
+                        
+                        total_val += coffee_val >0 ? parseInt(coffee_val) : 0;
+                        
                         if (coffee_val > 0){
                             text += coffee_val + "x" + hidden_value[i] + ",";
                         }
@@ -239,6 +257,7 @@
                         }
                     }
                     // document.getElementById("all_input").value = text + String(total_val) + "xTotal Order"
+                    
                     if(total_val > 0){
                         a = swal({
                         title: "Are you already checked the order twice?",
@@ -247,20 +266,24 @@
                         buttons: true,
                         dangerMode: true,
                         })
-                        .then((willDelete) => {
+                        .then( (willDelete) => {
                             
                             if (willDelete) {
                                 document.getElementById("all_input").value = text + String(total_val)
                                 swal("Your coffee order has been listed!", {
-                                icon: "success",
+                                    icon: "info",
                                 });
                                 var timesRun = 0;
-                                var interval = setInterval(function(){
+                                var interval = setInterval(async function(){
                                     timesRun += 1;
                                     if(timesRun === 1){
                                         clearInterval(interval);
                                     }
+
+                                    pageLoading();
+                                    await delay(2000);
                                     document.getElementById('theForm').submit();
+                                    
                                 }, 1200); 
                             }
                         });
