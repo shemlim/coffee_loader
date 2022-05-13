@@ -1,10 +1,12 @@
 import psycopg2
 from datetime import timedelta,datetime
 
-def call_time():
-    
-    date_now = datetime.now()
-    # + timedelta(hours=8)
+
+def call_time(local='server'):
+    if local == 'server':
+        date_now = datetime.now() + timedelta(hours=8)
+    else:
+        date_now = datetime.now()
     date = date_now.date()
     
     return [date_now,date]
