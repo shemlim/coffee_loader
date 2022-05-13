@@ -17,8 +17,15 @@
 
     <!-- Custom styles -->  
     <link href="{{url_for('static',filename='javascript/assets/css/style.css')}}" rel="stylesheet">
-    <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery3.6.0.js') }}"></script>
+    
+    <style>
+        button{
+            background: linear-gradient(to left, #6d5c46, #a99073, #6d5c46);
+            border: 3px solid #e0c5a3; 
+            color: #3b2300;
+            font-weight: 900;
+        }
+    </style>
 </head>
 
 
@@ -93,104 +100,107 @@
     
 
     {% block javascript %}
-            <script>
-                var run_swal = 0
-                function refreshGo(){
-                    location.reload()
-                }
-                
-                function submitFunc(){
-                    order_table = document.getElementById("order_table").value
-                    
-                    a = swal({
-                        title: "Have you finished the order?",
-                        text: "This is for the table "+order_table+" and please make sure the waiter already delivered the coffee before you press OK.",
-                        icon: "warning",
-                        buttons: true,
-                        dangerMode: true,
-                        })
-                        .then((willDelete) => {
-                            if (willDelete){
-                                document.getElementById('theForm').submit();                         
-                            }
-                        });
-                }
-                
-                function delFunc(){
-                    order_table = document.getElementById("order_table").value
-                    a = swal({
-                        title: "Are you sure to delete this order?",
-                        text: "This is for the table "+order_table+" and please recheck twice before deleting.",
-                        icon: "warning",
-                        buttons: true,
-                        dangerMode: true,
-                        })
-                        .then((willDelete) => {
-                            if (willDelete){
-                                document.getElementById("order_delete").value = 'delete'
-                                document.getElementById('theForm').submit();                         
-                            }
-                        });
-                }
-                
-                var order_total_val = parseInt(document.getElementById("order_total").value)
-                var updateInterval = setInterval(function() {
-                    try{
-                        var no_order = document.getElementById("no_order").value
-                    }
-                    catch(err){
-                        console.log(err)
-                        clearInterval(updateInterval)
-                        run_swal = 1
-                    }
-                    
-                    $.ajax({
-                    type: 'GET',
-                    url: '/check_barista_order',
-                    success: function(response) {
-                        val_response = parseInt(response)
-                        
-                        if (val_response > 0){
-                            console.log(val_response)
-                            order_total_val = val_response
-                            if (run_swal == 0){
-                                a = swal({
-                                title: "New order has been recieved",
-                                text: "Press OK to recieve this order!",
-                                icon: "warning",
-                                buttons: true,
-                                dangerMode: true,
-                                })
-                                .then((willDelete) => {
-                                    if (willDelete){
-                                        location.reload() 
-                                                     
-                                    }else{
-                                        var output = document.getElementById("text").innerHTML.split("=")[0];
-                                        document.getElementById("text").innerHTML = String(output) +'= ' + String(order_total_val)
-                                        document.getElementById("refreshBut").style.display = "block";
-                                        order_total_val = 0
-                                        run_swal = 1
-                                    }
-                                });
-                            }else{
-                                var output = document.getElementById("text").innerHTML.split("=")[0];
-                                document.getElementById("text").innerHTML = String(output) +'= ' + String(order_total_val)
-                            }
-                            
-                        }
-                    },
-                    error: function() {
-                        console.log('Error, call the admin for this!');
-                    }
-                    });
-                    // }
-                    
-                    },5000);
-                
-            </script>
+        <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery3.6.0.js') }}"></script>
 
-        {% endblock %}
+        <script>
+            var run_swal = 0
+            function refreshGo(){
+                location.reload()
+            }
+            
+            function submitFunc(){
+                order_table = document.getElementById("order_table").value
+                
+                a = swal({
+                    title: "Have you finished the order?",
+                    text: "This is for the table "+order_table+" and please make sure the waiter already delivered the coffee before you press OK.",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                    })
+                    .then((willDelete) => {
+                        if (willDelete){
+                            document.getElementById('theForm').submit();                         
+                        }
+                    });
+            }
+            
+            function delFunc(){
+                order_table = document.getElementById("order_table").value
+                a = swal({
+                    title: "Are you sure to delete this order?",
+                    text: "This is for the table "+order_table+" and please recheck twice before deleting.",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                    })
+                    .then((willDelete) => {
+                        if (willDelete){
+                            document.getElementById("order_delete").value = 'delete'
+                            document.getElementById('theForm').submit();                         
+                        }
+                    });
+            }
+            
+            var order_total_val = parseInt(document.getElementById("order_total").value)
+            var updateInterval = setInterval(function() {
+                try{
+                    var no_order = document.getElementById("no_order").value
+                }
+                catch(err){
+                    console.log(err)
+                    clearInterval(updateInterval)
+                    run_swal = 1
+                }
+                
+                $.ajax({
+                type: 'GET',
+                url: '/check_barista_order',
+                success: function(response) {
+                    val_response = parseInt(response)
+                    
+                    if (val_response > 0){
+                        console.log(val_response)
+                        order_total_val = val_response
+                        if (run_swal == 0){
+                            a = swal({
+                            title: "New order has been recieved",
+                            text: "Press OK to recieve this order!",
+                            icon: "warning",
+                            buttons: true,
+                            dangerMode: true,
+                            })
+                            .then((willDelete) => {
+                                if (willDelete){
+                                    location.reload() 
+                                                    
+                                }else{
+                                    var output = document.getElementById("text").innerHTML.split("=")[0];
+                                    document.getElementById("text").innerHTML = String(output) +'= ' + String(order_total_val)
+                                    document.getElementById("refreshBut").style.display = "block";
+                                    order_total_val = 0
+                                    run_swal = 1
+                                }
+                            });
+                        }else{
+                            var output = document.getElementById("text").innerHTML.split("=")[0];
+                            document.getElementById("text").innerHTML = String(output) +'= ' + String(order_total_val)
+                        }
+                        
+                    }
+                },
+                error: function() {
+                    console.log('Error, call the admin for this!');
+                }
+                });
+                // }
+                
+                },5000);
+            
+        </script>
+
+    {% endblock %}
 
 {%endblock%}
 </body>

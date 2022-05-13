@@ -17,8 +17,15 @@
 
     <!-- Custom styles -->  
     <link href="{{url_for('static',filename='javascript/assets/css/style.css')}}" rel="stylesheet">
-    <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery3.6.0.js') }}"></script>
+    
+    <style>
+        button{
+            background: linear-gradient(to left, #6d5c46, #a99073, #6d5c46);
+            border: 3px solid #e0c5a3; 
+            color: #3b2300;
+            font-weight: 900;
+        }
+    </style>
 </head>
 
 
@@ -124,18 +131,21 @@
             </form>
 
     {% block javascript %}
-            <script>
-               function submitFunc(id){
-                    var order_id = id.split("_")[1]
-                    
-                    document.getElementById("order_id").value = order_id
-                    
-                    document.getElementById('theForm').submit();
+        <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery3.6.0.js') }}"></script>
 
-                }
-            </script>
+        <script>
+            function submitFunc(id){
+                var order_id = id.split("_")[1]
+                
+                document.getElementById("order_id").value = order_id
+                
+                document.getElementById('theForm').submit();
 
-        {% endblock %}
+            }
+        </script>
+
+    {% endblock %}
 
 {%endblock%}
 </body>
