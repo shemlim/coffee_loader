@@ -15,9 +15,10 @@
     <!-- Custom fonts Icons --> 
     <link href="{{url_for('static',filename='javascript/assets/vendor/fontawesome/css/all.min.css')}}" rel="stylesheet">   
 
-    <!-- Custom styles -->  
-    <link href="{{url_for('static',filename='javascript/assets/css/style.css')}}" rel="stylesheet">
-    
+    <!-- Custom styles -->      
+    <link href="{{url_for('static',filename='javascript/assets/css/style.css')}}" rel="stylesheet" id="content">
+    <link rel="stylesheet" href="{{url_for('static',filename='javascript/styles.css')}}" id="load">
+
     <style>
         button{
             background: linear-gradient(to left, #6d5c46, #a99073, #6d5c46);
@@ -32,7 +33,20 @@
 {% block content %}
     {% if order_total > 0 %}
         <body class="bg-theme">
-            <div id="main_app">
+            <div id="preloader" style="background: linear-gradient(to bottom, #373532 70%, #645440 100%);background-attachment:fixed;">
+                <div>
+                    
+                    <div class="p" style="font-size:24px;width: 100%;text-align:center">
+                        <img src="{{url_for('static',filename='upload_photo/order_3.gif')}}" width="50%" height="50%">
+                        
+                        </p>
+                        <br><br>
+                        Work Hard only for God!! Please don't close this page!
+                    </div>
+                </div>
+            </div>
+
+            <div id="main_app" style="display:none;">
                 <!-- Header -->
                 <nav class="navbar navbar-expand-lg navbar-light mt-2" id="mainNav"> 
                     <h3 class="mx-auto display-block">Gethsemane Cafe</h3>
@@ -87,9 +101,19 @@
             </div>
 
     {% else %}
-        <h1 id="text">Hi {{name}}, just relax first while waiting for order = {{ order_total }}</h1>
-        <button id="refreshBut" onclick="refreshGo()" style="display:none;">Refresh to recieve order</button>
-        <input type="hidden" value="no order" id="no_order">
+    <body class="bg-theme">
+        <div id="main_app" >
+            <p>
+                <h1 id="text">Hi {{name}}, just relax first while waiting for order = {{ order_total }}</h1>
+                <button id="refreshBut" onclick="refreshGo()" style="display:none;">Refresh to recieve order</button>
+                <input type="hidden" value="no order" id="no_order">
+            </p>
+            
+        </div>
+        
+    </body>
+        
+
     {% endif %}
     <form action="{{ url_for('barista_finish_order') }}"  method="POST" id="theForm">
         <input type="hidden" value="{{ order_table }}" id="order_table" name="order_table">
@@ -102,13 +126,67 @@
     {% block javascript %}
         <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
         <script type="text/javascript" src="{{ url_for('static', filename='javascript/jquery3.6.0.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='javascript/pace.js') }}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/jquery-bez@1.0.11/src/jquery.bez.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script>
 
         <script>
+            paceOptions = {
+                ajax: false,
+                document: true,
+                eventLag: false
+            };
+
+            function delay(delayInms) {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                    resolve(2);
+                    }, delayInms);
+                });
+            }
+
+            function pageLoading(){
+                // $('head').find('link#content').remove();
+                $('head').find('link#load').add();
+                document.getElementById("main_app").style.display = "none";
+                document.getElementById("preloader").style.display = "block";
+
+            }
+
+            window.addEventListener("load",async function(){
+                var startTime = performance.now()
+                var a = Pace.on('start', function() {
+                        $('.p').delay(3000).animate({top: '30%', opacity: '0'}, 3000, $.bez([0.19,1,0.22,1]));
+
+                        $('#preloader').delay(3000).animate({top: '-100%'}, 2000, $.bez([0.19,1,0.22,1]));
+
+                    });
+                var endTime = performance.now()
+
+                var diff = endTime-startTime
+                if(diff < 1){
+                    await delay(1500);
+                }else{
+                    await delay(1000);
+                }
+
+                if(a == 1){
+                    
+                    $('head').find('link#load').remove();
+                    document.getElementById("main_app").style.display = "block";
+                    document.getElementById("preloader").style.display = "none";
+                }
+                
+            })
+
+            
             var run_swal = 0
             function refreshGo(){
                 location.reload()
             }
             
+
+
             function submitFunc(){
                 order_table = document.getElementById("order_table").value
                 
@@ -121,8 +199,21 @@
                     })
                     .then((willDelete) => {
                         if (willDelete){
-                            document.getElementById('theForm').submit();                         
+                            var timesRun = 0
+                            var interval = setInterval(async function(){
+                                timesRun += 1;
+                                if(timesRun === 1){
+                                    clearInterval(interval);
+                                }
+
+                                pageLoading();
+                                
+                                await document.getElementById('theForm').submit();
+                                
+                                
+                            }, 1200);                       
                         }
+                        
                     });
             }
             
