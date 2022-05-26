@@ -28,6 +28,7 @@
         .swal-footer {text-align: center;}
         .swal-text{color:white;text-align: center;}
         .swal-title{color: #c7a780}
+        /* .swal-modal{height:100%;} Untuk 100% height, bisa pakai semua space */
         .g-modal{position: relative;}
         .g-modal h5:first-child{font-family: 'PlayfairDisplay-Bold', sans-serif;font-size: 1.5rem;color: #c7a780;}
         .g-modal h5.des-text{font-size: 1rem;font-weight: normal;} 
@@ -177,30 +178,22 @@
                     }
                 
                 window.addEventListener("load",async function(){
-                    var startTime = performance.now()
-                    var a = Pace.on('start', function() {
-                            $('.p').delay(3000).animate({top: '30%', opacity: '0'}, 3000, $.bez([0.19,1,0.22,1]));
-
-                            $('#preloader').delay(3000).animate({top: '-100%'}, 2000, $.bez([0.19,1,0.22,1]));
-
-                        });
-                    var endTime = performance.now()
-
-                    var diff = endTime-startTime
-                    if(diff < 1){
-                        await delay(1500);
-                    }else{
-                        await delay(1000);
-                    }
-
-                    if(a == 1){
-                        
-                        $('head').find('link#load').remove();
-                        document.getElementById("main_app").style.display = "block";
-                        document.getElementById("preloader").style.display = "none";
-                    }
                     
+                    var a = Pace.on('start', function() {
+                        $('.p').delay(3000).animate({top: '30%', opacity: '0'}, 3000, $.bez([0.19,1,0.22,1]));
+
+                        $('#preloader').delay(3000).animate({top: '-100%'}, 2000, $.bez([0.19,1,0.22,1]));
+
+                    });
                 })
+
+                $(function() {
+                Pace.on("done", function(){
+                    $('head').find('link#load').remove();
+                    document.getElementById("main_app").style.display = "block";
+                    document.getElementById("preloader").style.display = "none";
+                });
+            });
                 
                 function pageLoading(){
                     // $('head').find('link#content').remove();
@@ -220,7 +213,7 @@
                     el.classList.add("g-modal")
                     el.innerHTML = "<h5 class='font-secondary-color text-center'>"+coffee_name+"</h5>\
                         <img src='"+src+"' style='width:150px'><br><h5 class='my-4 text-white text-center des-text'>"+desc_text
-                    
+                    console.log(src)
                     swal({
                         content: el
                     })

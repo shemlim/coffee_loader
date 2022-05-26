@@ -1,3 +1,4 @@
+
 from flask_login import LoginManager,login_user, logout_user, login_required,current_user
 from flask import Flask, redirect,request,render_template,url_for,session,flash
 
@@ -9,23 +10,40 @@ from wtforms.validators import  Length
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy 
 from flask_login import UserMixin
-from sqlalchemy import Table, create_engine, null
+from sqlalchemy import create_engine, null
 from datetime import timedelta,datetime
 from functools import wraps
 import random,string
 from datetime import date, timedelta
 import pandas as pd
+import json
+from threading import Lock
+from flask import Flask, render_template, session
+from flask_socketio import SocketIO, emit
+
+
 app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(minutes=180)
 Bootstrap(app)
+async_mode = None
+socketio = SocketIO(app, async_mode=async_mode)
+thread = None
+thread_lock = Lock()
+
+
 ## Set connection up ##
+
 class Connection:
     local = 'server'
+    
     # local = 'a'
     if local=='server':
         connection_path = "postgresql://vjrkfvpclacsbk:dbb1ed99cc03d72c142336ee06a97fb7d8776314b647b2c728bc3c0fd8b4e624@ec2-34-194-73-236.compute-1.amazonaws.com:5432/dcluovhf5udvoh"
+        url ='https://tjcpjcoffee.herokuapp.com/get_json'
     else:
         connection_path = "postgresql://postgres:Shemlim12#@localhost:5432/usersantuy"
+        url ='http://127.0.0.1:8080/get_json'
+
     engine = create_engine(connection_path)
     conn = engine.connect()
     secret_key = 'ezeepasardashboard_2021'
@@ -321,76 +339,77 @@ def barista_get_order():
         return render_template('barista_index.html',name = session['barista_name'],order_total=0)
 
 
-@app.route('/senior_barista',methods=['GET'])
-@app.route('/senior_barista',methods=['POST'])
-@login_required
-@access_template_required(['Senior Barista'])
-def senior_barista():
+# @app.route('/senior_barista',methods=['GET'])
+# @app.route('/senior_barista',methods=['POST'])
+# @login_required
+# @access_template_required(['Senior Barista'])
+# def senior_barista():
     
-    search = request.args.get('search') 
-    if search == None:search=''
-    search = '' if (len(search) == 0) else search
-    session['search'] = search
-    # Later change the head
-    order_tr = select_order_list(head=100) if search == '' else select_order_list(head=100,table_id=search)
-    user = User.query.filter_by(barista_id = session['barista_id']).first()
-    # print(order_tr,search)
-    if (session['barista_order_id'] != None) & (user.barista_order_id != None):
-        order_tr = select_order_list(int(session['barista_order_id']))[0]
+#     search = request.args.get('search') 
+#     if search == None:search=''
+#     search = '' if (len(search) == 0) else search
+#     session['search'] = search
+    
+    
+#     # print(order_tr)
+#     user = User.query.filter_by(barista_id = session['barista_id']).first()
+#     if (session['barista_order_id'] != None) & (user.barista_order_id != None):
+#         order_tr = select_order_list(int(session['barista_order_id']))[0]
         
-        if order_tr[6] == 2:
-            order_id = order_tr[0]
-            order_table = order_tr[1]
-            order_total = order_tr[4]
-            order_img = load_order_img(order_tr)
-            session['after_login'] = 1
-            return render_template('barista_index.html',name = session['barista_name'],order_total=order_total
-            ,order_tr=order_tr,order_img=order_img)
+#         if order_tr[6] == 2:
+#             order_id = order_tr[0]
+#             order_table = order_tr[1]
+#             order_total = order_tr[4]
+#             order_img = load_order_img(order_tr)
+#             session['after_login'] = 1
+#             return render_template('barista_index.html',name = session['barista_name'],order_total=order_total
+#             ,order_tr=order_tr,order_img=order_img)
 
-    if (request.method == 'POST'):
-        order_id = request.form['order_id']
-        order_tr = select_order_list()[0]
-        order_id = order_tr[0]
-        order_table = order_tr[1]
-        order_total = order_tr[4]
+#     # Later change the head
+#     order_tr = select_order_list(head=100) if search == '' else select_order_list(head=100,table_id=search)
+    
+#     if (request.method == 'POST'):
+#         order_id = int(request.form['order_id'])
+
+#         order_tr = select_order_list(order_id=order_id)[0]
+#         order_id = order_tr[0]
+#         order_table = order_tr[1]
+#         order_total = order_tr[4]
         
-        random_string = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(30))
-        update_order_rndstr(random_string,order_id)
+#         random_string = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(30))
+#         update_order_rndstr(random_string,order_id)
         
-        try:
-            print(random_string)
-            update_order_list(session['barista_name'],order_id,random_string)
-            order_tr = select_order_list(order_id=order_id,rand_str=random_string)[0]
-            order_id = order_tr[0]
-            order_table = order_tr[1]
-            order_total = order_tr[4]
-            order_img = load_order_img(order_tr)
+#         try:
+#             # print(random_string)
+#             update_order_list(session['barista_name'],order_id,random_string)
+#             order_tr = select_order_list(order_id=order_id,rand_str=random_string)[0]
+#             order_id = order_tr[0]
+#             order_table = order_tr[1]
+#             order_total = order_tr[4]
+#             order_img = load_order_img(order_tr)
             
-            # Update order barista
-            user.barista_order_id = order_id
-            user.barista_hold_table = order_table
-            user.barista_status = 1 # Ongoing order
-            user.barista_date_edit = datetime.now()
-            session['barista_order_id'] = order_id
-            db.session.commit()
+#             # Update order barista
+#             user.barista_order_id = order_id
+#             user.barista_hold_table = order_table
+#             user.barista_status = 1 # Ongoing order
+#             user.barista_date_edit = datetime.now()
+#             session['barista_order_id'] = order_id
+            
+#             db.session.commit()
 
-        except Exception as e:
-            print(e)
-            flash("Your order has been taken by the others.")
-            # return redirect(url_for("senior_barista"))
-            return str(e)
-            # print(e)
-        return render_template('barista_index.html',name = session['barista_name'],order_total=order_total
-        ,order_tr=order_tr,order_img=order_img)
+#         except Exception as e:
+#             print(e)
+#             flash("Your order has been taken by the others.")
+#             # return redirect(url_for("senior_barista"))
+#             return str(e)
+        
+#         return render_template('barista_index.html',name = session['barista_name'],order_total=order_total
+#         ,order_tr=list(order_tr),order_img=order_img)
+#         # return order_id
+#     session['order_table'] = [x[0] for x in order_tr]
+#     return render_template('barista_index_senior.html',name = session['barista_name'],
+#                 order_tr=order_tr,zip=zip,search=search)
 
-    return render_template('barista_index_senior.html',name = session['barista_name'],
-                order_tr=order_tr,zip=zip,search=search)
-
-@app.route("/senior_barista_search/<search>")
-def senior_barista_search(search):
-    order_tr = select_order_list(head=100,table_id=search)
-    return render_template('barista_index_senior.html',name = session['barista_name'],
-                order_tr=order_tr,zip=zip)
 
 @app.route("/barista_finish",methods=['POST'])
 @access_template_required(['Barista','Senior Barista'])
@@ -506,6 +525,64 @@ def admin_order(name):
                             summary=summary,summary_report=summary_report)
 # Function for admin #
 
+# Function Live load #
+@app.route('/senior_barista',methods=['GET'])
+def senior_barista():
     
+    return render_template("senior_barista_index.html", async_mode=socketio.async_mode)
+
+
+def background_thread():
+    """Example of how to send server generated events to clients."""
+    
+    while True:
+        socketio.sleep(15)
+        
+        order_tr = select_order_list(head=100,all_status=1)
+ 
+        print("This is the order : ",order_tr)
+        if len(order_tr)> 0:
+            
+            socketio.emit('my_response',
+                    {'data': json.dumps(order_tr, default=str)})
+
+
+@socketio.event
+def my_event(message):
+    order_tr = select_order_list(head=100,all_status=1)
+    session['loaded_table'] = [x[0] for x in order_tr]
+    emit('my_response',{'data': json.dumps(order_tr, default=str)})
+
+
+@socketio.on('status_order')
+def handle_message(data):
+    
+    print("Received message",data['data'],data['action'])
+    status_update = 'success'
+    order_status = 0
+    if data['action'] == 'take':
+        order_status = 2
+    elif data['action'] == 'delete':
+        order_status = 5
+    else:
+        order_status = 3
+
+    try:
+        update_order_list(session['barista_name'],data['data'],order_status=order_status)
+    except:
+        status_update = 'failed'
+    
+    emit('status_response', {'data': status_update,'id':data['data'],'action':data['action']})
+
+
+@socketio.event
+def connect():
+    global thread
+    with thread_lock:
+        if thread is None:
+            thread = socketio.start_background_task(background_thread)
+    # emit('my_response', {'data': 'Connected', 'count': 0})
+
+
 if __name__ == '__main__':
-    app.run()
+    socketio.run(app)

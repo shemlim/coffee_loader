@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Gethsemane Cafe | Coffee Ordering</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />  
+
+
+    <link href="/javascript/assets/css/style.css" rel="stylesheet">
+    <link href="/javascript/assets/vendor/fontawesome/css/all.min.css" rel="stylesheet">
+    <link href="/javascript/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    
+    <style>
+        button{
+            background: linear-gradient(to left, #6d5c46, #a99073, #6d5c46);
+            border: 3px solid #e0c5a3; 
+            color: #3b2300;
+            font-weight: 900;
+        }
+    </style>
+</head>
+    
+    <body class="bg-theme">
+        <div id="main_app" >
+            <!-- Header -->
+            <nav class="navbar navbar-expand-lg navbar-light mt-2" id="mainNav"> 
+                <h3 class="mx-auto display-block">Gethsemane Cafe</h3>
+                <hr class="gold-hr-color" />
+                <!-- Table name -->
+            </nav>
+            
+            <div class="container-fluid my-3">
+                
+                <div class="col">
+                    <div class="g-cafe-card display-block p-3">
+                            <!-- Image -->
+                            <table class="table" >
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2" style="margin-left:auto;margin-right:auto;text-align:center">
+                                            
+                                                <h5 class="font-secondary-color text-left">TABLE <span style="font-size:44px">1</span></h5>
+                                            
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        
+                                        <td>
+                                            <h5 class="font-secondary-color text-left">PRIORITY <span style="font-size:44px">2</span></h5>
+                                        </td>
+                                        
+                                        
+                                        <td>
+                                            <h5 class="font-secondary-color text-left">
+                                                List of order
+                                                
+                                                <li>1 Americano</li>
+                                                <li>2 Cappucino</li>
+                                                <li>3 Espresso</li>
+
+                                            </h5>
+                                            
+                                            <input type='hidden' id="order_tr_{{x[0]}}" name="order_tr_{{x[0]}}">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="row">
+                                <button id="order_{{x[0]}}" type="button"
+                                        onclick="submitFunc(this.id)" class="btn btn-light">Take this</button>
+                            
+                            </div>
+                            
+                    </div>
+                </div>
+            
+            </div>     
+        </div>
+        
+</body>
+</html>

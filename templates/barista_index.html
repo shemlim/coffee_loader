@@ -154,22 +154,14 @@
             }
 
             window.addEventListener("load",async function(){
-                var startTime = performance.now()
                 var a = Pace.on('start', function() {
                         $('.p').delay(3000).animate({top: '30%', opacity: '0'}, 3000, $.bez([0.19,1,0.22,1]));
 
                         $('#preloader').delay(3000).animate({top: '-100%'}, 2000, $.bez([0.19,1,0.22,1]));
 
                     });
-                var endTime = performance.now()
-
-                var diff = endTime-startTime
-                if(diff < 1){
-                    await delay(1500);
-                }else{
-                    await delay(1000);
-                }
-
+                
+               
                 if(a == 1){
                     
                     $('head').find('link#load').remove();

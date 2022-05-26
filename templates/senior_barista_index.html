@@ -1,0 +1,384 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+    <title>Gethsemane Cafe | Coffee Ordering</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />  
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{url_for('static',filename='javascript/assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- <link href="{{url_for('static',filename='javascript/assets/vendor/bootstrap/css/popper.min.js') }}" rel="stylesheet">  -->
+
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" 
+                integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
+
+    <!-- Custom fonts Icons --> 
+    <link href="{{url_for('static',filename='javascript/assets/vendor/fontawesome/css/all.min.css')}}" rel="stylesheet">   
+
+    <!-- Custom styles -->  
+    <link href="{{url_for('static',filename='javascript/assets/css/style.css')}}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        button{
+            background: linear-gradient(to left, #6d5c46, #a99073, #6d5c46);
+            border: 3px solid #e0c5a3; 
+            color: #3b2300;
+            font-weight: 900;
+        }
+        .swal-overlay{background-color: rgb(0 0 0 / 70%);}
+        .swal-overlay--show-modal .swal-modal{background: -webkit-linear-gradient(45deg, #272526 10%, #373432 90%);background: linear-gradient(45deg, #272526 10%, #373532 90%);position:relative;color:#fff;border-radius:5px;border: 1px solid #c7a780;box-shadow: 0 0px 10px rgb(199 167 128);}
+        .swal-button {background: linear-gradient(to left, #6d5c46, #a99073, #6d5c46);border: 2px solid #e0c5a3;}
+        .swal-button:focus{box-shadow: none;}
+        .swal-footer {text-align: center;}
+        .swal-text{color:white;text-align: center;}
+        .swal-title{color: #c7a780}
+        /* .swal-modal{height:100%;} Untuk 100% height, bisa pakai semua space */
+        .g-modal{position: relative;}
+        .g-modal h5:first-child{font-family: 'PlayfairDisplay-Bold', sans-serif;font-size: 1.5rem;color: #c7a780;}
+        .g-modal h5.des-text{font-size: 1rem;font-weight: normal;}
+
+        
+    </style>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/sweetalert.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='javascript/popper.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    
+    <script type="text/javascript" charset="utf-8">
+        var socket = io();
+        var take_color = 'linear-gradient(to left, #00ff9d, #00ff4c, #00ff5e)'
+        var done_color = 'linear-gradient(to left, #ff009d, #ff009d, #ff004c)'
+        var delete_color = 'linear-gradient(to left, #ff4400, #ff6a00, #ff8400)'
+        var pending_color = 'linear-gradient(to left, #6d5c46, #a99073, #6d5c46)'
+        // Submit function to change the status
+        function submitFunc(val){
+            var temp = String(val).split("_")
+            var act = temp[0];var id = temp[1]
+            socket.emit('status_order', {data: id,action:act});
+            return false;
+        }
+        
+        // Dont forget to style none if the status isnot match with the dropdownlist
+        socket.on('status_response', function(msg) {
+            console.log('status_response',msg)
+            if(msg.action == 'take'){
+                document.getElementById("table_order_"+msg.id).className = ''
+                document.getElementById("table_order_"+msg.id).classList.add('status_take');
+                document.getElementById("take_"+msg.id).style.background=take_color;
+                document.getElementById("take_"+msg.id).innerText ='Taken';
+                document.getElementById("take_"+msg.id).style.visibility ='visible';
+
+                document.getElementById("take_"+msg.id).disabled = 'disabled';
+
+
+                document.getElementById("delete_"+msg.id).style.visibility='visible';
+                document.getElementById("done_"+msg.id).style.visibility='visible';
+
+
+            }
+            else if(msg.action == 'delete'){
+                document.getElementById("table_order_"+msg.id).className = ''
+                document.getElementById("table_order_"+msg.id).classList.add('status_delete');
+                document.getElementById("delete_"+msg.id).style.background=delete_color;
+                document.getElementById("delete_"+msg.id).innerText ='Deleted';
+                document.getElementById("delete_"+msg.id).disabled = 'disabled';
+                document.getElementById("delete_"+msg.id).style.visibility ='visible';
+                
+
+                document.getElementById("take_"+msg.id).style.visibility = 'hidden';
+                document.getElementById("done_"+msg.id).style.visibility ='hidden';
+
+            }
+            else{
+                document.getElementById("table_order_"+msg.id).className = ''
+                document.getElementById("table_order_"+msg.id).classList.add('status_done');
+                document.getElementById("done_"+msg.id).style.background=done_color;
+                document.getElementById("done_"+msg.id).innerText ='Finished';
+                document.getElementById("done_"+msg.id).style.visibility ='visible';
+
+                document.getElementById("done_"+msg.id).disabled = 'disabled';
+                
+                document.getElementById("take_"+msg.id).style.visibility = 'hidden';
+                document.getElementById("delete_"+msg.id).style.visibility ='hidden';
+            }
+            
+        })
+        // Apply this when DropdownList and Status windows has been made 
+        function showOnly(parameter){
+            var status_parameter = ['status_pending','status_take','status_delete','status_done']
+            var status = parameter.innerText == "Pending" ? "status_pending" : parameter.innerText == "Taken" ? "status_take"
+                            : parameter.innerText == "Finished" ? "status_done" : parameter.innerText == "Deleted" ? "status_delete" : "status_all"
+            
+            
+            var arr = []
+            var arr2 = []
+
+            if(status == 'status_all'){
+                status_parameter.forEach(function(word) {
+                    temp_arr = document.getElementsByClassName(word)
+                    arr.push(temp_arr)
+                });
+                
+                if(arr.length > 0){
+                    arr.forEach(function(element){
+                        for(var arr_el=0;arr_el<element.length;arr_el++){
+                            console.log(element[arr_el].id)
+                            document.getElementById(element[arr_el].id).style.display="block"
+                        }
+                    });
+                }
+            }else{
+                status_parameter.forEach(function(word) {
+                    
+                    if (word !== status) {
+                        temp_arr = document.getElementsByClassName(word)
+                        
+                        if(temp_arr.length > 0){
+                            arr.push(temp_arr)
+                        }
+                    }else{
+                        temp_arr = document.getElementsByClassName(word)
+                        
+                        if(temp_arr.length > 0){
+                            arr2.push(temp_arr)
+                        }
+                    }
+                });
+                
+                
+                if(arr.length > 0){
+                    arr.forEach(function(element){
+                        for(var arr_el=0;arr_el<element.length;arr_el++){
+                            
+                            document.getElementById(element[arr_el].id).style.display="none"
+                        }
+                    });
+                }
+                if(arr2.length > 0){
+                    
+                    arr2.forEach(function(element){
+                        for(var arr_el=0;arr_el<element.length;arr_el++){
+                            
+                            document.getElementById(element[arr_el].id).style.display="block"
+                        }
+                    });
+                }
+            }
+
+            document.getElementById("dropdownMenuButton").innerText = parameter.innerText
+
+        }
+        // Apply this when DropdownList and Status windows has been made 
+
+        // Fullscreen mode + image
+        function fullScreenSubmit(val){
+            id = String(val).split("_")[1]
+
+            var status = document.getElementById("table_order_"+id).className
+            console.log(status)
+            var temp = document.getElementById("list_of_stuff_"+id)
+            var divClone = temp.cloneNode(true);
+
+            var temp2 = document.getElementById("table_name_"+id)
+            var divClone2 = temp2.cloneNode(true);
+            
+            all_image = []
+            table_start="<table class='table'>"
+            for (const li of document.querySelectorAll('#list_of_stuff_'+id+'>li')) {
+                temp_li = String(li.textContent).replace(/[0-9]/g, '').trim().toLowerCase();
+                
+                if(temp_li.split(" ").length > 2){
+                    temp_li_arr = temp_li.split(" ")
+                    temp_li_arr.forEach(function(part,index,) {
+                                                this[index] = this[index][0]
+                                            },temp_li_arr);
+                    all_image.push('<tr><td><img src="/static/upload_photo/' + temp_li_arr.join(" ") + '.jpg" style="width:150px">\
+                                    </img></td><td style="padding-top:40px"><h5 class="font-secondary-color text-center">'+String(li.textContent)+'</h5></td></tr>')
+                }else{
+                    
+                    all_image.push('<tr><td><img src="/static/upload_photo/' + temp_li + '.jpg" style="width:150px">\
+                                    </img></td><td style="padding-top:40px"><h5 class="font-secondary-color text-center">'+String(li.textContent)+'</h5></td></tr>')
+                }
+                
+            }
+            table_start = table_start + all_image.join("") + "</table>"
+
+            
+            const el = document.createElement('div')
+            el.innerHTML = '<h5 class="font-secondary-color text-center">' + divClone2.innerHTML +"</h5><hr>"
+                            + table_start
+
+            
+            var buttonText = status == "status_done" ? "Finished" : status == "status_pending" ? 
+                                "Pending" : status == "status_take" ? "Taken" : "Deleted"
+            swal({
+                content: el,
+                button : buttonText
+            });
+        }
+
+        // Main task of realtime order
+        $(document).ready(function() {
+            
+            var socket = io();
+            socket.on('connect', function() {
+                socket.emit('my_event', {data: 'I\'m connected!'});
+            });
+
+            all_table_id = []
+            socket.on('my_response', function(msg, cb) {
+                if(msg.data.length > 0){
+                    for(let i=0;i<msg.data.length;i++){
+                        data = JSON.parse(msg.data)[i]
+                        if(data !== undefined){
+                            
+                            var arraycontainsturtles = (all_table_id.indexOf(data[0]) > -1);
+                            if(arraycontainsturtles == true){
+                                continue;
+                            }
+                            // Process the data
+                            string_table_order = ''
+                            detail_order = data[2].split(",")
+                            detail_order.forEach(function(part,index,) {
+                                                this[index] = this[index].replace("x"," ")
+                                                string_table_order += '<li>' + this[index] + '</li>'
+                                            },detail_order);
+                            
+
+                            const el = document.createElement('div')
+                            el.setAttribute("id", "table_order_"+data[0]);
+                            el.setAttribute("class", "status_pending");
+
+                            el.innerHTML = '<div class="col">\
+                                                <div class="g-cafe-card display-block p-3">\
+                                                    <table class="table" ><tbody><tr>\
+                                                        <td colspan="2" style="margin-left:auto;margin-right:auto;text-align:center">'
+                                            + '<h5 class="font-secondary-color text-left" id="table_name_'+data[0]+'">\
+                                                TABLE <span style="font-size:44px" class="table_number" id="'+data[0]+'">'+data[1]+'</span>\
+                                                - PRIORITY <span style="font-size:44px" id="priority_number">'+data[3]+'</span>\
+                                                <i class="material-icons" id="table_'+data[0]+'" style="font-size:40px;" onclick="fullScreenSubmit(this.id)">&#xe5d0;</i></h5>'
+                                            + '</td></tr><tr>'
+                                            + '<td><h5 class="font-secondary-color text-left" id="list_of_stuff_'+data[0]+'">' + string_table_order 
+                                            + '</h5></td></tr></tbody></table>\
+                                            <div class="column" ><table class="table"><tr>\
+                                                <td><center><button id="take_'+data[0]+'" onclick="submitFunc(this.id)" type="button"\
+                                                    class="btn btn-light">Take this</button></center></td>'
+                                            +'<td><center><button id="done_'+data[0]+'" type="button" style="visibility:hidden;"\
+                                                class="btn btn-light" onclick="submitFunc(this.id)">Done</button></center></td>'
+                                            + '<td><center><button id="delete_'+data[0]+'" type="button" style="visibility:hidden;"\
+                                                class="btn btn-light" onclick="submitFunc(this.id)">Delete</button></center></td>'
+                                            
+                                                
+                                            +'</tr></table></div></div></div>'             
+                        
+                        if(data[3] == 2){
+                            document.getElementById("container2").appendChild(el) 
+                        }else{
+                            document.getElementById("container1").appendChild(el) 
+                        }
+
+                        if(data[6] == 2){
+                            $("#take_"+data[0]).click();
+                        }else if(data[6] == 5){
+                            $("#delete_"+data[0]).click();
+                        }else if (data[6] == 3){
+                            $("#done_"+data[0]).click();
+                        }
+                        console.log(data[6])
+                            
+                        }else{
+                            break;
+                        }
+                        all_table_id.push(data[0])
+                        
+                    }
+                    
+                }
+                // $('#log').append('<br>' + $('<div/>').text('Received #' + ': ' + msg.data + " : " + msg.list_of_excluded).html());
+                if (cb)
+                    cb();
+            });
+
+            
+        });
+
+        function searchTable(val){
+            var search = String(val.value)
+            var arr_word = document.getElementsByClassName("table_number")
+            if(search.length>0){
+                for(var arr_el=0;arr_el<arr_word.length;arr_el++){
+                    
+                    // document.getElementById(element[arr_el].id).style.display="none"
+                    if(arr_word[arr_el].innerText != search){
+                        document.getElementById("table_order_"+arr_word[arr_el].id).style.display="none"
+                    }else{
+                        document.getElementById("table_order_"+arr_word[arr_el].id).style.display="block"
+                    }
+                }
+            }else{
+                for(var arr_el=0;arr_el<arr_word.length;arr_el++){
+                    
+                    // document.getElementById(element[arr_el].id).style.display="none"
+                    document.getElementById("table_order_"+arr_word[arr_el].id).style.display="block"
+                    
+                }
+            }
+            
+           
+        }
+        
+    </script>
+
+</head>
+
+<body class="bg-theme">
+
+
+    <div id="main_app" >
+        <!-- Header -->
+        <nav class="navbar navbar-expand-lg navbar-light mt-2" id="mainNav"> 
+            <h3 class="mx-auto display-block">Gethsemane Cafe</h3>
+            <hr class="gold-hr-color" />
+            <!-- Table name -->
+        </nav>
+        <h5 class="font-secondary-color text-center">Search for table : </h5>
+        <div class="num-cup-wrap mt-3 " style="margin-left:20px">
+            <input type="text" placeholder="Input table number or drinks" value="" class="form-control text-center mx-2" name="search"
+                                        id="search" oninput="searchTable(this)">
+        </div>
+
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" style="margin-left:40px;"
+            id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Show All
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" onclick="showOnly(this)">Show All</a>
+              <a class="dropdown-item" onclick="showOnly(this)">Pending</a>
+              <a class="dropdown-item" onclick="showOnly(this)" >Taken</a>
+              <a class="dropdown-item" onclick="showOnly(this)" >Finished</a>
+              <a class="dropdown-item" onclick="showOnly(this)" >Deleted</a>
+
+            </div>
+          </div>
+
+        <!-- Loop from here -->
+        <div class="container-fluid my-3" id="container1">
+            
+        </div>
+        
+        <div class="container-fluid my-3" id="container2">
+            
+        </div>
+        <!-- Loop until here -->
+        
+</body>
+
+</html>

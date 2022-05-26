@@ -30,7 +30,7 @@
 
 
 {% block content %}
-
+    
     <body class="bg-theme">
         <div id="main_app" >
             <!-- Header -->
@@ -57,6 +57,7 @@
             {% if order_tr_len > 0 %}
                 <div class="container-fluid my-3">
                 {% for x in order_tr %}
+                    
                     <div class="col">
                         <div class="g-cafe-card display-block p-3">
                                 <!-- Image -->
@@ -139,10 +140,11 @@
                 var order_id = id.split("_")[1]
                 
                 document.getElementById("order_id").value = order_id
-                
                 document.getElementById('theForm').submit();
 
             }
+
+            
         </script>
 
     {% endblock %}
