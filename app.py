@@ -124,7 +124,7 @@ def coffee_getter(name=None):
         
     
     if (request.method == 'POST'):
-        print(name,request.form['table'])
+        
         return render_template("index.html",menu_dict=d_cat_menu,list=list,table_order=name,priority=1,
                                 name=session['waiter_name'])
 
@@ -136,7 +136,7 @@ def coffee_getter(name=None):
 def recieve_coffee_order():
     if request.method=='POST':
         all_order = request.form['all_input']
-        print(all_order)
+        
         table_order = request.form['table_order']
         priority = int(request.form['priority'])
         all_order,order_total = all_order.rsplit(",",1)
@@ -144,7 +144,7 @@ def recieve_coffee_order():
         # 1 -> pending, 2-> ongoing, 3-> finished
         order_status = 1
 
-        print('order_total' , order_total,all_order)
+        
         
         try:
             insert_order(all_order,table_order,order_total,order_status,priority)
@@ -203,7 +203,7 @@ def login_barista():
     if form.validate_on_submit():
         
         user = User.query.filter_by(barista_password=form.password.data).first()
-        print(type(user))
+        
         
         if user == None:
             flash('Please check your login details and try again.')
@@ -441,7 +441,7 @@ def barista_finish_order():
 @login_required
 @access_template_required(['Waiter'])
 def waiter_order():
-    print("ya")
+    
     return render_template('cth.html')
 
 # @app.route('/waiter_coffee_list',methods=['GET'])
@@ -463,8 +463,6 @@ def allsundays(year,month= []):
         yield d
         d += timedelta(days = 7)
 
-    for d in allsundays(2022,[4,7]):
-        print(d)
 
 def to_pd(mobile_records,df='order'):
     menu_df = pd.DataFrame(mobile_records)
@@ -526,7 +524,10 @@ def admin_order(name):
 # Function for admin #
 
 # Function Live load #
+
 @app.route('/senior_barista',methods=['GET'])
+@login_required
+@access_template_required(['Senior Barista'])
 def senior_barista():
     
     return render_template("senior_barista_index.html", async_mode=socketio.async_mode)
@@ -540,7 +541,7 @@ def background_thread():
         
         order_tr = select_order_list(head=100,all_status=1)
  
-        print("This is the order : ",order_tr)
+        
         if len(order_tr)> 0:
             
             socketio.emit('my_response',
@@ -548,6 +549,8 @@ def background_thread():
 
 
 @socketio.event
+@login_required
+@access_template_required(['Senior Barista'])
 def my_event(message):
     order_tr = select_order_list(head=100,all_status=1)
     session['loaded_table'] = [x[0] for x in order_tr]
@@ -555,6 +558,8 @@ def my_event(message):
 
 
 @socketio.on('status_order')
+@login_required
+@access_template_required(['Senior Barista'])
 def handle_message(data):
     
     print("Received message",data['data'],data['action'])
@@ -569,13 +574,16 @@ def handle_message(data):
 
     try:
         update_order_list(session['barista_name'],data['data'],order_status=order_status)
-    except:
+    except Exception as e:
         status_update = 'failed'
+        print(e)
     
     emit('status_response', {'data': status_update,'id':data['data'],'action':data['action']})
 
 
 @socketio.event
+@login_required
+@access_template_required(['Senior Barista'])
 def connect():
     global thread
     with thread_lock:
