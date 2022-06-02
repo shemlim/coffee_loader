@@ -1,8 +1,6 @@
 
 from flask_login import LoginManager,login_user, logout_user, login_required,current_user
 from flask import Flask, redirect,request,render_template,url_for,session,flash
-from matplotlib.pyplot import table
-
 from create_db import connection,insert_order,select_cat_menu,select_order_list,\
                         check_order_transac_list,update_order_list,update_order_rndstr,select_order_status_list,select_only_id
 from flask_wtf import FlaskForm
