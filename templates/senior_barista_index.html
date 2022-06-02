@@ -79,11 +79,16 @@
                 document.getElementById("take_"+msg.id).style.visibility ='visible';
 
                 document.getElementById("take_"+msg.id).disabled = 'disabled';
-
-
                 document.getElementById("delete_"+msg.id).style.visibility='visible';
                 document.getElementById("done_"+msg.id).style.visibility='visible';
-
+                
+                li_btn = document.getElementById("li_"+msg.id).children
+                for(let i=0;i<li_btn.length;i++){
+                    temp = li_btn[i]
+                    min_btn = temp.children[0].children[0].id
+                    document.getElementById(min_btn).style.visibility = "visible"
+                    
+                }
 
             }
             else if(msg.action == 'delete'){
@@ -98,6 +103,14 @@
                 document.getElementById("take_"+msg.id).style.visibility = 'hidden';
                 document.getElementById("done_"+msg.id).style.visibility ='hidden';
 
+                li_btn = $("div#li_"+msg.id+" > div")
+                for(let i=0;i<li_btn.length;i++){
+                    temp = li_btn[i]
+                    min_btn = temp.children[0].children[0].id
+                    pls_btn = temp.children[2].children[0].id
+                    document.getElementById(min_btn).style.visibility = "hidden"
+                    document.getElementById(pls_btn).style.visibility = "hidden"
+                }
             }
             else{
                 document.getElementById("table_order_"+msg.id).className = ''
@@ -110,9 +123,20 @@
                 
                 document.getElementById("take_"+msg.id).style.visibility = 'hidden';
                 document.getElementById("delete_"+msg.id).style.visibility ='hidden';
+
+                li_btn = $("div#li_"+msg.id+" > div")
+                for(let i=0;i<li_btn.length;i++){
+                    temp = li_btn[i]
+                    min_btn = temp.children[0].children[0].id
+                    pls_btn = temp.children[2].children[0].id
+                    document.getElementById(min_btn).style.visibility = "hidden"
+                    document.getElementById(pls_btn).style.visibility = "hidden"
+                }
             }
             
         })
+        
+        
         // Apply this when DropdownList and Status windows has been made 
         function showOnly(parameter,order=0){
             var status_parameter = ['status_pending','status_take','status_delete','status_done']
@@ -155,6 +179,7 @@
                             }
                         });
                     }
+                    
                 }else{
                     status_parameter.forEach(function(word) {
                         
@@ -200,6 +225,7 @@
                         });
                     }
                 }
+                
             }else{
                 var arr = []
                 var arr2 = []
@@ -255,7 +281,7 @@
         // Fullscreen mode + image
         function fullScreenSubmit(val){
             id = String(val).split("_")[1]
-
+            
             var status = document.getElementById("table_order_"+id).className
             
             var temp = document.getElementById("list_of_stuff_"+id)
@@ -263,23 +289,27 @@
 
             var temp2 = document.getElementById("table_name_"+id)
             var divClone2 = temp2.cloneNode(true);
-            
+            console.log(temp)
             all_image = []
             table_start="<table class='table'>"
-            for (const li of document.querySelectorAll('#list_of_stuff_'+id+'>li')) {
-                temp_li = String(li.textContent).replace(/[0-9]/g, '').trim().toLowerCase();
+            for (const li of document.querySelectorAll('#list_of_stuff_'+id+'>div')) {
                 
-                if(temp_li.split(" ").length > 2){
-                    temp_li_arr = temp_li.split(" ")
-                    temp_li_arr.forEach(function(part,index,) {
-                                                this[index] = this[index][0]
-                                            },temp_li_arr);
-                    all_image.push('<tr><td><img src="/static/upload_photo/' + temp_li_arr.join(" ") + '.jpg" style="width:150px">\
-                                    </img></td><td style="padding-top:40px"><h5 class="font-secondary-color text-center">'+String(li.textContent)+'</h5></td></tr>')
-                }else{
+                for (lis =0; lis<li.children.length;lis++){
+                    temp_lia = li.children[lis].children[1].innerText
                     
-                    all_image.push('<tr><td><img src="/static/upload_photo/' + temp_li + '.jpg" style="width:150px">\
-                                    </img></td><td style="padding-top:40px"><h5 class="font-secondary-color text-center">'+String(li.textContent)+'</h5></td></tr>')
+                    temp_li = String(temp_lia).replace(/[0-9]/g, '').trim().toLowerCase();
+                    if(temp_li.split(" ").length > 2){
+                        temp_li_arr = temp_li.split(" ")
+                        temp_li_arr.forEach(function(part,index,) {
+                                                    this[index] = this[index][0]
+                                                },temp_li_arr);
+                        all_image.push('<tr><td><img src="/static/upload_photo/' + temp_li_arr.join(" ") + '.jpg" style="width:150px">\
+                                        </img></td><td style="padding-top:40px"><h5 class="font-secondary-color text-center">'+String(temp_lia)+'</h5></td></tr>')
+                    }else{
+                        
+                        all_image.push('<tr><td><img src="/static/upload_photo/' + temp_li + '.jpg" style="width:150px">\
+                                        </img></td><td style="padding-top:40px"><h5 class="font-secondary-color text-center">'+String(temp_lia)+'</h5></td></tr>')
+                    }
                 }
                 
             }
@@ -301,13 +331,71 @@
 
         // Main task of realtime order
         $(document).ready(function() {
+            function createDiv(data){
+                const el = document.createElement('div')
+                el.setAttribute("id", "table_order_"+data[0]);
+                el.setAttribute("class", "status_pending");
+                
+
+                description = data[9].length > 0 ? "<li>"+ String(data[9]).replace(/[*]{3}/g,"</li><li>")+"</li>" : ""
+                
+                
+                el.innerHTML = '<div class="col">\
+                                    <div class="g-cafe-card display-block p-3">\
+                                        <table class="table" ><tbody><tr>\
+                                            <td colspan="2" style="margin-left:auto;margin-right:auto;text-align:center">'
+                                + '<h5 class="font-secondary-color text-left" id="table_name_'+data[0]+'">\
+                                    TABLE <span style="font-size:44px" class="table_number" id="'+data[0]+'">'+data[1]+'</span>\
+                                    - PRIORITY <span style="font-size:44px" id="priority_number">'+data[3]+'</span>\
+                                    <i class="material-icons" id="table_'+data[0]+'" style="font-size:40px;" onclick="fullScreenSubmit(this.id)">&#xe5d0;</i></h5>'
+                                + '</td></tr>'
+                                + '<tr><td id="table_li" >\
+                                    <h5 class="font-secondary-color text-left"  id="list_of_stuff_'+data[0]+'">' + string_table_order +'</h5></td></tr>'
+                                // +'<td><h5 class="font-secondary-color text-left">Edit</td>'
+                            
+                                + '<tr><td><h5 class="font-secondary-color text-left"><u>Description</u>'+description+'</td></tr>\
+                                </tbody></table>'
+                                
+                                +'<div class="column" ><table class="table"><tr>\
+                                    <td><center><button id="take_'+data[0]+'" onclick="submitFunc(this.id)" type="button"\
+                                        class="btn btn-light">Take this</button></center></td>'
+                                +'<td><center><button id="done_'+data[0]+'" type="button" style="visibility:hidden;"\
+                                    class="btn btn-light" onclick="submitFunc(this.id)">Done</button></center></td>'
+                                + '<td><center><button id="delete_'+data[0]+'" type="button" style="visibility:hidden;"\
+                                    class="btn btn-light" onclick="submitFunc(this.id)">Delete</button></center></td>'
+                                +'</tr></table></div></div></div>'           
             
+                if(data[3] == 2){
+                    document.getElementById("container2").appendChild(el) 
+                }else{
+                    document.getElementById("container1").appendChild(el) 
+                }
+
+                if(data[6] == 2){
+                    $("#take_"+data[0]).click();
+                }else if(data[6] == 5){
+                    $("#delete_"+data[0]).click();
+                }else if (data[6] == 3){
+                    $("#done_"+data[0]).click();
+                }
+                
+            }
             var socket = io();
             socket.on('connect', function() {
                 socket.emit('my_event', {data: 'I\'m connected!'});
             });
 
             all_table_id = []
+
+            function min_pls_btn(min='',pls=''){
+                min_btn = '<div class="count-minus"><i class="fa-solid fa-circle-minus"\
+                                onclick="minCounter(this)" id="'+min+'" style="visibility:hidden"></i></div>'
+                pls_btn = '<div class="count-add"><i class="fa-solid fa-circle-plus"\
+                    onclick="addCounter(this)" id="'+pls+'" style="visibility:hidden"></i></div>'
+                
+                return [min_btn,pls_btn]
+            }
+
             socket.on('my_response', function(msg, cb) {
                 if(msg.data.length > 0){
                     for(let i=0;i<msg.data.length;i++){
@@ -319,62 +407,26 @@
                                 continue;
                             }
                             // Process the data
-                            string_table_order = ''
+                            string_table_order = '<div id="li_'+data[0]+'">'
                             detail_order = data[2].split(",")
+                            
                             detail_order.forEach(function(part,index,) {
-                                                this[index] = this[index].replace("x"," ")
-                                                string_table_order += '<li>' + this[index] + '</li>'
-                                            },detail_order);
-                            
-
-                            const el = document.createElement('div')
-                            el.setAttribute("id", "table_order_"+data[0]);
-                            el.setAttribute("class", "status_pending");
-
-                            el.innerHTML = '<div class="col">\
-                                                <div class="g-cafe-card display-block p-3">\
-                                                    <table class="table" ><tbody><tr>\
-                                                        <td colspan="2" style="margin-left:auto;margin-right:auto;text-align:center">'
-                                            + '<h5 class="font-secondary-color text-left" id="table_name_'+data[0]+'">\
-                                                TABLE <span style="font-size:44px" class="table_number" id="'+data[0]+'">'+data[1]+'</span>\
-                                                - PRIORITY <span style="font-size:44px" id="priority_number">'+data[3]+'</span>\
-                                                <i class="material-icons" id="table_'+data[0]+'" style="font-size:40px;" onclick="fullScreenSubmit(this.id)">&#xe5d0;</i></h5>'
-                                            + '</td></tr><tr>'
-                                            + '<td id="table_li"><h5 class="font-secondary-color text-left" id="list_of_stuff_'+data[0]+'">' + string_table_order 
-                                            + '</h5></td></tr></tbody></table>\
-                                            <div class="column" ><table class="table"><tr>\
-                                                <td><center><button id="take_'+data[0]+'" onclick="submitFunc(this.id)" type="button"\
-                                                    class="btn btn-light">Take this</button></center></td>'
-                                            +'<td><center><button id="done_'+data[0]+'" type="button" style="visibility:hidden;"\
-                                                class="btn btn-light" onclick="submitFunc(this.id)">Done</button></center></td>'
-                                            + '<td><center><button id="delete_'+data[0]+'" type="button" style="visibility:hidden;"\
-                                                class="btn btn-light" onclick="submitFunc(this.id)">Delete</button></center></td>'
-                                            
                                                 
-                                            +'</tr></table></div></div></div>'             
-                        
-                        if(data[3] == 2){
-                            document.getElementById("container2").appendChild(el) 
-                        }else{
-                            document.getElementById("container1").appendChild(el) 
+                                                this[index] = this[index].replace("x"," ")
+                                                total = this[index].split(" ")[0]
+                                                string_table_order += '<div class="num-cup-wrap mt-3" style="width:250px" >'
+                                                     +min_pls_btn("li_"+index+"_"+total+"_"+data[0],'')[0] + 
+                                                                  '<p id="li_'+index+'_'+total+'_'+data[0]+'_m" onclick="deleteAll(this)">'+this[index]+"</p>"
+                                                         +min_pls_btn('',"li_"+index+"_"+total+"_"+data[0]+'_p')[1]+'</div>'
+                                            },detail_order);
+                            string_table_order += '</div>'
+                            createDiv(data);
                         }
-
-                        if(data[6] == 2){
-                            $("#take_"+data[0]).click();
-                        }else if(data[6] == 5){
-                            $("#delete_"+data[0]).click();
-                        }else if (data[6] == 3){
-                            $("#done_"+data[0]).click();
-                        }
-                        
-                            
-                        }else{
+                        else{
                             break;
                         }
                         all_table_id.push(data[0])
-                        
                     }
-                    
                 }
                 // $('#log').append('<br>' + $('<div/>').text('Received #' + ': ' + msg.data + " : " + msg.list_of_excluded).html());
                 if (cb)
@@ -383,16 +435,67 @@
 
             
         });
-
+        // Check int val
         function isInt(value) {
             return !isNaN(value) && 
                     parseInt(Number(value)) == value && 
                     !isNaN(parseInt(value, 10));
             }
+        
+        function minCounter(val){
+            id_min = val.id + '_m'
+            order_det = String(document.getElementById(id_min).innerText).split(" ")
+            order_num = parseInt(order_det[0]) - 1
+            order_det.shift()
+            
+            document.getElementById(id_min).innerText = String(order_num) +' '+ order_det.join(" ")
+            
+            if(order_num == 0){
+                document.getElementById(val.id).style.visibility='hidden'
+                document.getElementById(id_min).style = "text-decoration:line-through"
+                
+                // if(ele.value == "0"){
+                //     ele.style="text-decoration:line-through";
+                //     ele.value = "1"
+                // }else{
+                //     ele.style.removeProperty("text-decoration");
+                //     ele.value = "0"
+                // }
+            }
+            
+            document.getElementById(val.id+'_p').style.visibility = "visible"
+            
+        }
 
+        function addCounter(val){
+            id_temp = val.id.split("_").slice(0,-1).join("_")
+            
+            id_min = id_temp + "_m"
+            total = parseInt(val.id.split("_")[2])
+            console.log(id_min,total)
+            order_det = String(document.getElementById(id_min).innerText).split(" ")
+            order_num = parseInt(order_det[0]) + 1
+            order_det.shift()
+            if((order_num >= 1) & (order_num < total)){
+                document.getElementById(id_min).innerText = String(order_num) +' '+ order_det.join(" ")
+                document.getElementById(id_min).style.removeProperty("text-decoration");
+                document.getElementById(id_temp).style.visibility = "visible"
+            }
+            else if(order_num >= total){
+                document.getElementById(val.id).style.visibility='hidden'
+                document.getElementById(id_min).innerText = String(order_num) +' '+ order_det.join(" ")
+                document.getElementById(id_min).style.removeProperty("text-decoration");
+                document.getElementById(id_temp).style.visibility = "visible"
+                
+            }else{
+                document.getElementById(id_min).innerText = String(order_num) +' '+ order_det.join(" ")
+            }
+            
+        }
+        
         function searchTable(val=0,order=0){
             
-            var search = String(document.getElementById("search").value)
+            var search = String(document.getElementById("search").value).toLowerCase()
             
             var arr_word = document.getElementsByClassName("table_number")
             var table_number = []
@@ -419,18 +522,20 @@
                     
                     // For the drinks
                     for (const li of document.querySelectorAll('#table_li>h5')) {
-                        var id = String(li.id).split("_")[3]
+                        // var id = String(li.id).split("_")[3]
                         table_li.push(li.id)
+                        
                     }
                     
                     table_li.forEach(function(element){
                         var id = String(element).split("_")[3]
                         
                         document.getElementById("table_order_"+id).style.display='none';
-
-                        for (const lis of document.querySelectorAll("#"+element+">li")){
-                            temp_li = String(lis.textContent).replace(/[0-9]/g, '').trim().toLowerCase();
-
+                        
+                        for (const lis of document.querySelectorAll("#"+element+">div>div")){
+                            
+                            temp_li = String(lis.children[1].innerText).replace(/[0-9]/g, '').trim().toLowerCase();
+                            
                             if((temp_li.includes(search)) & (filterBtn.includes(id))){
                                 document.getElementById("table_order_"+id).style.display="block";
                                 continue;
@@ -479,6 +584,75 @@
            
         }
         
+        function hideDeleted(val){
+            
+            status_parameter = ['status_delete','status_done']
+            arr = []
+            if(val.value == "0"){
+                status_parameter.forEach(function(word) {
+                    temp_arr = document.getElementsByClassName(word)
+                    arr.push(temp_arr)
+                });
+                
+                if(arr.length > 0){
+                    arr.forEach(function(element){
+                        for(var arr_el=0;arr_el<element.length;arr_el++){
+                            var id = String(element[arr_el].id).split("_")[2]
+                            document.getElementById(element[arr_el].id).style.display="none"
+                        }
+                    });
+                }
+                val.value = 1
+                val.innerText = "Unhide D&F"
+               
+                document.getElementById("finished").style.display = 'none'
+                document.getElementById("deleted").style.display = 'none'
+
+            }else{
+                status_parameter.forEach(function(word) {
+                    temp_arr = document.getElementsByClassName(word)
+                    arr.push(temp_arr)
+                });
+                
+                if(arr.length > 0){
+                    arr.forEach(function(element){
+                        for(var arr_el=0;arr_el<element.length;arr_el++){
+                            var id = String(element[arr_el].id).split("_")[2]
+                            document.getElementById(element[arr_el].id).style.display="block"
+                        }
+                    });
+                }
+                val.value = 0
+                val.innerText = "Hide D&F"
+                document.getElementById("finished").style.display = 'block'
+                document.getElementById("deleted").style.display = 'block'
+            }
+            
+        
+        }
+        // function order(){
+        //     // var arr_word = Array.from(document.getElementsByClassName("table_number"))
+        //     var status_parameter = ['status_pending','status_take','status_delete','status_done']
+        //     var dict_status = {}
+        //     all_table_id.forEach(function(element,index,){
+                
+        //         var stat_id = document.getElementById("table_order_"+this[index]).className
+        //         var prio_id = document.querySelectorAll("#table_name_"+this[index]+" > span")[1].innerText
+        //         dict_status[this[index]] = [status_parameter.indexOf(stat_id),prio_id]
+        //     },all_table_id)
+
+        //     console.log(dict_status)
+        //     socket.emit('true_order', {data: dict_status});
+        //     return false;
+        // }
+
+        // socket.on('sort_by_response', function(msg){
+        //     for(let i=0;i<msg.id.length;i++){
+        //         console.log(msg.id[i],msg.sorted[i])
+        //         $('#table_order_'+msg.id[i]).replaceWith($('#table_order_'+msg.sorted[i]).clone());
+        //     }
+        // });
+
     </script>
 
 </head>
@@ -498,22 +672,31 @@
             <input type="text" placeholder="Input table number or drinks" value="" class="form-control text-center mx-2" name="search"
                                         id="search" oninput="searchTable(this)">
         </div>
-
+        <!-- <table class="table">
+            <tr>
+                <td> -->
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" style="margin-left:40px;"
-            id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Show All
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              <a class="dropdown-item" onclick="showOnly(this)">Show All</a>
-              <a class="dropdown-item" onclick="showOnly(this)">Pending</a>
-              <a class="dropdown-item" onclick="showOnly(this)" >Taken</a>
-              <a class="dropdown-item" onclick="showOnly(this)" >Finished</a>
-              <a class="dropdown-item" onclick="showOnly(this)" >Deleted</a>
+            <div class="btn-group text-center" style="width:100%"></div>
+                <button class="btn btn-secondary dropdown-toggle" type="button" style="margin-left:40px;"
+                id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Show All
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" onclick="showOnly(this)" val="0">Show All</a>
+                    <a class="dropdown-item" onclick="showOnly(this)" val="1">Pending</a>
+                    <a class="dropdown-item" onclick="showOnly(this)" val="2">Taken</a>
+                    <a class="dropdown-item" onclick="showOnly(this)" id="finished">Finished</a>
+                    <a class="dropdown-item" onclick="showOnly(this)" id="deleted">Deleted</a>
+                </div>
 
+                <button class="btn btn-secondary" type="button" style="margin-left:40px;"
+                id="Hidedf" aria-haspopup="true" aria-expanded="false" onclick="hideDeleted(this)" value="0">
+                    Hide D&F
+                </button>
             </div>
-          </div>
-
+        </table>
+            
+        
         <!-- Loop from here -->
         <div class="container-fluid my-3" id="container1">
             

@@ -137,7 +137,13 @@
 
                 <!-- Edit Ends Here -->
                 <div class="col-12 my-5">
-                    <button type="submit" onclick="submitFunc()" class="btn btn-lg btn-cafe-theme w-100">Submit</button>
+                    <div class="btn-group text-center" style="width:100%">
+                        <button type="submit" onclick="submitFunc()" class="btn btn-lg btn-cafe-theme w-100 " >Submit</button>
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <button onclick="submitDesc()"
+                         title="Go to top" class="btn btn-lg btn-cafe-theme w-100">Description</button>
+                    </div>
+                    
                 </div>
             </div>
         </div>     
@@ -147,6 +153,7 @@
         <input type="hidden" id="all_input" name="all_input" value="{{ ','.join(list(menu_dict.keys())) }}">
         <input type="hidden" id="table_order" name="table_order" value="{{ table_order }}">
         <input type="hidden" id="priority" name="priority" value="{{ priority }}">
+        <input type="hidden" id="desc" name="desc" value="">
     </form>
 
     {% block javascript %}
@@ -163,6 +170,34 @@
                     eventLag: false
                 };
                 var checkError = 0
+
+                function submitDesc(){
+                    const el = document.createElement('div')
+                    el.setAttribute("id", "myDesc");
+                    str_ph = "How to add description for extra shot,Example:\n- For 1 cup only : 1 cup with 1 or 2 extra shot\n- For 2 cup or more : 2 cup, Cup 1 with extra shot and Cup 2 with 2 extra shot "
+                    str_ph1 = "\n\nFor menu that doesn't exist in the options, can go order like this : \n - 1 Piccolo with less shot."
+                    desc_val = String(document.getElementById("desc").value)
+                    console.log(desc_val)
+                    if(desc_val.length <= 0){
+                        el.innerHTML = '<textarea class="form-control" \
+                                id="textAreaDesc"  rows="10" placeholder="'+str_ph+str_ph1+'" \
+                                oninput="writeDesc(this)"></textarea>'
+                    }else{
+                        el.innerHTML = '<textarea class="form-control" \
+                                id="textAreaDesc"  rows="10" placeholder="'+str_ph+str_ph1+'"\
+                                oninput="writeDesc(this)">'+desc_val+'</textarea>'
+                    }
+                    
+
+                    swal({
+                        'content':el
+                    })
+
+                }
+                function writeDesc(var_desc){
+                    document.getElementById("desc").value = var_desc.value
+                }
+
                 function funcRep(val){
                     if (checkError < 3){
                         checkError +=1;
@@ -200,7 +235,8 @@
                     $('head').find('link#load').add();
                     document.getElementById("main_app").style.display = "none";
                     document.getElementById("afterloader").style.display = "block";
-
+                    
+                    
                 }
                 
 

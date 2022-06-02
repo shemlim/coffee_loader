@@ -12,11 +12,11 @@ def call_time(local='server'):
     return [date_now,date]
 
 ## For order transaction ##
-def insert_order(list_order,table_order,order_total,order_status,priority=1):
+def insert_order(list_order,table_order,order_total,order_status,table_desc,priority=1):
     conn,cur = connection()
-    sql = """insert into order_transac(order_table,order_details,order_priority,order_total,order_status,order_date) 
-            values({},'{}',{},{},{},'{}');
-          """.format(table_order,list_order,priority,order_total,order_status,call_time()[0])
+    sql = """insert into order_transac(order_table,order_details,order_priority,order_total,order_status,order_date,order_desc) 
+            values({},'{}',{},{},{},'{}','{}');
+          """.format(table_order,list_order,priority,order_total,order_status,call_time()[0],table_desc)
     cur.execute(sql)
     conn.commit()
     cur.close()
@@ -80,6 +80,30 @@ def check_order_transac_list():
     cur.close()
     conn.close()
     return mobile_records
+
+def select_only_id():
+    conn,cur = connection()
+    sql = ''
+    time = call_time()
+    min = time[0]
+    dt_today = time[1]
+    if min.hour <= 17:
+        min = datetime.strftime(dt_today,"%Y-%m-%d 06:00:00")
+    else:
+        min = datetime.strftime(dt_today,"%Y-%m-%d 17:30:00")
+    max = datetime.strftime(dt_today,"%Y-%m-%d 23:59:59")
+
+    sql = """select order_id from order_transac where order_date >= '{}' and order_date <= '{}'
+                    order by order_status,order_priority,order_id;"""\
+                    .format(min,max)
+    cur.execute(sql)
+    mobile_records = cur.fetchall()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return mobile_records
+
+
 
 def select_order_list(order_id=None,rand_str=None,head=1,min_date=None,max_date=None,table_id=None,list_of_excluded=[],all_status=0):
     conn,cur = connection()

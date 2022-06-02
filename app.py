@@ -1,9 +1,10 @@
 
 from flask_login import LoginManager,login_user, logout_user, login_required,current_user
 from flask import Flask, redirect,request,render_template,url_for,session,flash
+from matplotlib.pyplot import table
 
 from create_db import connection,insert_order,select_cat_menu,select_order_list,\
-                        check_order_transac_list,update_order_list,update_order_rndstr,select_order_status_list
+                        check_order_transac_list,update_order_list,update_order_rndstr,select_order_status_list,select_only_id
 from flask_wtf import FlaskForm
 from wtforms import PasswordField
 from wtforms.validators import  Length
@@ -138,16 +139,17 @@ def recieve_coffee_order():
         all_order = request.form['all_input']
         
         table_order = request.form['table_order']
+        table_desc = str(request.form['desc'].replace("\n","***"))
+        print(table_desc)
         priority = int(request.form['priority'])
         all_order,order_total = all_order.rsplit(",",1)
         order_total = int(order_total)
         # 1 -> pending, 2-> ongoing, 3-> finished
         order_status = 1
+        
 
-        
-        
         try:
-            insert_order(all_order,table_order,order_total,order_status,priority)
+            insert_order(all_order,table_order,order_total,order_status,table_desc,priority)
         except Exception as e:
             print(e)
         
@@ -540,8 +542,8 @@ def background_thread():
         socketio.sleep(15)
         
         order_tr = select_order_list(head=100,all_status=1)
- 
         
+
         if len(order_tr)> 0:
             
             socketio.emit('my_response',
@@ -553,6 +555,7 @@ def background_thread():
 @access_template_required(['Senior Barista'])
 def my_event(message):
     order_tr = select_order_list(head=100,all_status=1)
+    
     session['loaded_table'] = [x[0] for x in order_tr]
     emit('my_response',{'data': json.dumps(order_tr, default=str)})
 
@@ -579,6 +582,20 @@ def handle_message(data):
         print(e)
     
     emit('status_response', {'data': status_update,'id':data['data'],'action':data['action']})
+
+@socketio.on('true_order')
+@login_required
+@access_template_required(['Senior Barista'])
+def handle_message(data):
+    
+    print("True order msg : ",data['data'])
+    
+    # dic = {'114': [1, '2'], '115': [0, '1'], '116': [0, '2'], '117': [1, '1'], '118': [2, '2']}
+    res = [k for k, v in sorted(dict(data['data']).items(), key=lambda item: item[1])]
+    
+    emit('sort_by_response', {'id':list(data['data'].keys()),'sorted':res})
+
+
 
 
 @socketio.event
