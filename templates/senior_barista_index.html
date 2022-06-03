@@ -634,7 +634,8 @@
         function deleteAll(val){
             
             id = String(val.id).split("_")[3];
-            id_stat = document.getElementById(id).className
+            id_stat = document.getElementById('table_order_'+id).className
+            
             if(id_stat !== "status_take"){
 
                 a = swal({

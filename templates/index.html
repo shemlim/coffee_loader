@@ -181,190 +181,190 @@
                             });
                         });
                     
-                        function submitDesc(){
-                            const el = document.createElement('div')
-                            el.setAttribute("id", "myDesc");
-                            str_ph = "How to add description for extra shot,Example:\n- For 1 cup only : 1 cup with 1 or 2 extra shot\n- For 2 cup or more : 2 cup, Cup 1 with extra shot and Cup 2 with 2 extra shot "
-                            str_ph1 = "\n\nFor menu that doesn't exist in the options, can go order like this : \n - 1 Piccolo with less shot."
-                            desc_val = String(document.getElementById("desc").value)
-                            console.log(desc_val)
-                            if(desc_val.length <= 0){
-                                el.innerHTML = '<textarea class="form-control" \
-                                        id="textAreaDesc"  rows="10" placeholder="'+str_ph+str_ph1+'" \
-                                        oninput="writeDesc(this)"></textarea>'
-                            }else{
-                                el.innerHTML = '<textarea class="form-control" \
-                                        id="textAreaDesc"  rows="10" placeholder="'+str_ph+str_ph1+'"\
-                                        oninput="writeDesc(this)">'+desc_val+'</textarea>'
-                            }
-                            
+                    });
+                    window.addEventListener("load",async function(){
+                        
+                        var a = Pace.on('start', function() {
+                                $('.p').delay(3000).animate({top: '30%', opacity: '0'}, 3000, $.bez([0.19,1,0.22,1]));
 
-                            swal({
-                                'content':el
-                            })
+                                $('#preloader').delay(3000).animate({top: '-100%'}, 2000, $.bez([0.19,1,0.22,1]));
 
-                        }
-                        function writeDesc(var_desc){
-                            document.getElementById("desc").value = var_desc.value
-                        }
-
-                        function funcRep(val){
-                            if (checkError < 3){
-                                checkError +=1;
-                                document.getElementById(val.id).src = document.getElementById(val.id+'1').value
-                            }
-                        }
-                        function delay(delayInms) {
-                            return new Promise(resolve => {
-                                setTimeout(() => {
-                                resolve(2);
-                                }, delayInms);
                             });
-                            }
-                        
-                        function pageLoading(){
-                            // $('head').find('link#content').remove();
-                            $('head').find('link#load').add();
-                            document.getElementById("main_app").style.display = "none";
-                            document.getElementById("afterloader").style.display = "block";
-                            
-                            
+                        })
+                        function submitDesc(){
+                        const el = document.createElement('div')
+                        el.setAttribute("id", "myDesc");
+                        str_ph = "How to add description for extra shot,Example:\n- For 1 cup only : 1 cup with 1 or 2 extra shot\n- For 2 cup or more : 2 cup, Cup 1 with extra shot and Cup 2 with 2 extra shot "
+                        str_ph1 = "\n\nFor menu that doesn't exist in the options, can go order like this : \n - 1 Piccolo with less shot."
+                        desc_val = String(document.getElementById("desc").value)
+                        console.log(desc_val)
+                        if(desc_val.length <= 0){
+                            el.innerHTML = '<textarea class="form-control" \
+                                    id="textAreaDesc"  rows="10" placeholder="'+str_ph+str_ph1+'" \
+                                    oninput="writeDesc(this)"></textarea>'
+                        }else{
+                            el.innerHTML = '<textarea class="form-control" \
+                                    id="textAreaDesc"  rows="10" placeholder="'+str_ph+str_ph1+'"\
+                                    oninput="writeDesc(this)">'+desc_val+'</textarea>'
                         }
                         
-                        function descFunc(val){
-                            coffee = val.id
-                            coffee_name = coffee.split("_")[0]
-                            desc_text = document.getElementById(coffee+"_").value
-                            var src = $(val).find('img').attr('src');
-                            const el = document.createElement('div')
-                            el.classList.add("g-modal")
-                            el.innerHTML = "<h5 class='font-secondary-color text-center'>"+coffee_name+"</h5>\
-                                <img src='"+src+"' style='width:150px'><br><h5 class='my-4 text-white text-center des-text'>"+desc_text
-                            console.log(src)
-                            swal({
-                                content: el
-                            })
-                        }
-                        
-                        function changeVal(value){
-                            val = document.getElementById(value).value
-                            val = val >0 ? parseInt(val) : 0                    
-                            if (val>20){
-                                document.getElementById(value).value = 20
-                                // document.getElementById(value +"_btn").style.visibility = "hidden";
 
-                            }
-                            if (val <= 0 ){
-                                document.getElementById(value).value = 0
-                                document.getElementById(value +"_btn_m").style.visibility = "hidden";
-                            }
-                            if(val>0 & val<=20){
-                                document.getElementById(value +"_btn_m").style.visibility = "visible";
-                            }
-                        }
+                        swal({
+                            'content':el
+                        })
 
-                        $('input').on('input propertychange paste', function (e) {
-                            var val = $(this).val()
-                            var reg = /^0/gi;
-                            if (val.match(reg)) {
-                                $(this).val(val.replace(reg, ''));
-                            }
+                    }
+                    function writeDesc(var_desc){
+                        document.getElementById("desc").value = var_desc.value
+                    }
+
+                    function funcRep(val){
+                        if (checkError < 3){
+                            checkError +=1;
+                            document.getElementById(val.id).src = document.getElementById(val.id+'1').value
+                        }
+                    }
+                    function delay(delayInms) {
+                        return new Promise(resolve => {
+                            setTimeout(() => {
+                            resolve(2);
+                            }, delayInms);
                         });
-                        function submitFunc(){
-                            hidden_value = document.getElementById("all_input").value
-                            hidden_value = hidden_value.split(",")
-                            
-                            text = '';
-                            alert_text = '';
-                            total_val = 0;
-                            for (let i = 0; i < hidden_value.length; i++) {
-                                coffee_val = document.getElementById(hidden_value[i]).value
-                                
-                                total_val += coffee_val >0 ? parseInt(coffee_val) : 0;
-                                
-                                if (coffee_val > 0){
-                                    text += coffee_val + "x" + hidden_value[i] + ",";
-                                }
-                                if (coffee_val > 0){
-                                    alert_text += coffee_val + "x " + hidden_value[i] + "\n";
-                                }
-                            }
-                            // document.getElementById("all_input").value = text + String(total_val) + "xTotal Order"
-                            
-                            if(total_val > 0){
-                                a = swal({
-                                title: "Are you already checked the order twice?",
-                                text: "Once ordered, you can not change it anymore!\n" + alert_text,
-                                icon: "warning",
-                                buttons: true,
-                                dangerMode: true,
-                                })
-                                .then( (willDelete) => {
-                                    
-                                    if (willDelete) {
-                                        document.getElementById("all_input").value = text + String(total_val)
-                                        swal("Your coffee order has been listed!", {
-                                            icon: "info",
-                                        });
-                                        var timesRun = 0;
-                                        var interval = setInterval(async function(){
-                                            timesRun += 1;
-                                            if(timesRun === 1){
-                                                clearInterval(interval);
-                                            }
+                        }
+                    
+                    function pageLoading(){
+                        // $('head').find('link#content').remove();
+                        $('head').find('link#load').add();
+                        document.getElementById("main_app").style.display = "none";
+                        document.getElementById("afterloader").style.display = "block";
+                        
+                        
+                    }
+                    
+                    function descFunc(val){
+                        coffee = val.id
+                        coffee_name = coffee.split("_")[0]
+                        desc_text = document.getElementById(coffee+"_").value
+                        var src = $(val).find('img').attr('src');
+                        const el = document.createElement('div')
+                        el.classList.add("g-modal")
+                        el.innerHTML = "<h5 class='font-secondary-color text-center'>"+coffee_name+"</h5>\
+                            <img src='"+src+"' style='width:150px'><br><h5 class='my-4 text-white text-center des-text'>"+desc_text
+                        console.log(src)
+                        swal({
+                            content: el
+                        })
+                    }
+                    
+                    function changeVal(value){
+                        val = document.getElementById(value).value
+                        val = val >0 ? parseInt(val) : 0                    
+                        if (val>20){
+                            document.getElementById(value).value = 20
+                            // document.getElementById(value +"_btn").style.visibility = "hidden";
 
-                                            pageLoading();
-                                            
-                                            await document.getElementById('theForm').submit();
-                                            
-                                            
-                                        }, 1200); 
-                                    }
-                                });
-                            }else{
-                                a = swal({
-                                title: "You have no order! Please add your coffee first.",
-                                text: "Once ordered, you can not change it anymore!",
-                                icon: "warning",
-                                dangerMode: true,
-                                });
+                        }
+                        if (val <= 0 ){
+                            document.getElementById(value).value = 0
+                            document.getElementById(value +"_btn_m").style.visibility = "hidden";
+                        }
+                        if(val>0 & val<=20){
+                            document.getElementById(value +"_btn_m").style.visibility = "visible";
+                        }
+                    }
+
+                    $('input').on('input propertychange paste', function (e) {
+                        var val = $(this).val()
+                        var reg = /^0/gi;
+                        if (val.match(reg)) {
+                            $(this).val(val.replace(reg, ''));
+                        }
+                    });
+                    function submitFunc(){
+                        hidden_value = document.getElementById("all_input").value
+                        hidden_value = hidden_value.split(",")
+                        
+                        text = '';
+                        alert_text = '';
+                        total_val = 0;
+                        for (let i = 0; i < hidden_value.length; i++) {
+                            coffee_val = document.getElementById(hidden_value[i]).value
+                            
+                            total_val += coffee_val >0 ? parseInt(coffee_val) : 0;
+                            
+                            if (coffee_val > 0){
+                                text += coffee_val + "x" + hidden_value[i] + ",";
+                            }
+                            if (coffee_val > 0){
+                                alert_text += coffee_val + "x " + hidden_value[i] + "\n";
                             }
                         }
-                        function addCounter(btn_id) {
-                            console.log(btn_id)
-                            id = btn_id.split("_")[0]
-                            val = document.getElementById(id).value
-                            counter_val = val > 0 ? parseInt(val) : 0
-                            if (counter_val + 1 > 0){
-                                document.getElementById(btn_id+"_m").style.visibility = "visible"
-                            }
-                            document.getElementById(id).value = counter_val + 1
-                        }
-
-                        function minusCounter(btn_id) {
-                            id = btn_id.split("_")[0]
-                            
-                            counter_val = parseInt(document.getElementById(id).value)
-                            if (counter_val - 1 == 0){
-                                document.getElementById(id).value = counter_val - 1
-                                document.getElementById(btn_id).style.visibility = "hidden";
-                            }
-                            else{
-                                document.getElementById(id).value = counter_val - 1
-                                document.getElementById(btn_id).style.visibility = "visible";
-                            }
-                        }
-                        });
-                        window.addEventListener("load",async function(){
-                            
-                            var a = Pace.on('start', function() {
-                                    $('.p').delay(3000).animate({top: '30%', opacity: '0'}, 3000, $.bez([0.19,1,0.22,1]));
-
-                                    $('#preloader').delay(3000).animate({top: '-100%'}, 2000, $.bez([0.19,1,0.22,1]));
-
-                                });
+                        // document.getElementById("all_input").value = text + String(total_val) + "xTotal Order"
+                        
+                        if(total_val > 0){
+                            a = swal({
+                            title: "Have you checked the order twice?",
+                            text: "Once ordered, you can not change it anymore!\n" + alert_text,
+                            icon: "warning",
+                            buttons: true,
+                            dangerMode: true,
                             })
+                            .then( (willDelete) => {
+                                
+                                if (willDelete) {
+                                    document.getElementById("all_input").value = text + String(total_val)
+                                    swal("Your coffee order has been listed!", {
+                                        icon: "info",
+                                    });
+                                    var timesRun = 0;
+                                    var interval = setInterval(async function(){
+                                        timesRun += 1;
+                                        if(timesRun === 1){
+                                            clearInterval(interval);
+                                        }
 
+                                        pageLoading();
+                                        
+                                        await document.getElementById('theForm').submit();
+                                        
+                                        
+                                    }, 1200); 
+                                }
+                            });
+                        }else{
+                            a = swal({
+                            title: "You have no order! Please add your coffee first.",
+                            text: "Once ordered, you can not change it anymore!",
+                            icon: "warning",
+                            dangerMode: true,
+                            });
+                        }
+                    }
+                    function addCounter(btn_id) {
+                        console.log(btn_id)
+                        id = btn_id.split("_")[0]
+                        val = document.getElementById(id).value
+                        counter_val = val > 0 ? parseInt(val) : 0
+                        if (counter_val + 1 > 0){
+                            document.getElementById(btn_id+"_m").style.visibility = "visible"
+                        }
+                        document.getElementById(id).value = counter_val + 1
+                    }
+
+                    function minusCounter(btn_id) {
+                        id = btn_id.split("_")[0]
+                        
+                        counter_val = parseInt(document.getElementById(id).value)
+                        if (counter_val - 1 == 0){
+                            document.getElementById(id).value = counter_val - 1
+                            document.getElementById(btn_id).style.visibility = "hidden";
+                        }
+                        else{
+                            document.getElementById(id).value = counter_val - 1
+                            document.getElementById(btn_id).style.visibility = "visible";
+                        }
+                    }
+                    
             </script>
 
         {% endblock %}
