@@ -2,7 +2,7 @@
 from flask_login import LoginManager,login_user, logout_user, login_required,current_user
 from flask import Flask, redirect,request,render_template,url_for,session,flash
 from create_db import connection,insert_order,select_cat_menu,select_order_list,\
-                        check_order_transac_list,update_order_list,update_order_rndstr,select_order_status_list,select_only_id
+                        check_order_transac_list,update_order_list,update_order_rndstr,select_order_status_list,select_only_id,update_order_done
 from flask_wtf import FlaskForm
 from wtforms import PasswordField
 from wtforms.validators import  Length
@@ -14,7 +14,7 @@ from datetime import timedelta,datetime
 from functools import wraps
 import random,string
 from datetime import date, timedelta
-import pandas as pd
+import pandas as pd,numpy as np
 import json
 from threading import Lock
 from flask import Flask, render_template, session
@@ -135,19 +135,19 @@ def coffee_getter(name=None):
 def recieve_coffee_order():
     if request.method=='POST':
         all_order = request.form['all_input']
-        
         table_order = request.form['table_order']
         table_desc = str(request.form['desc'].replace("\n","***"))
-        print(table_desc)
+        
         priority = int(request.form['priority'])
         all_order,order_total = all_order.rsplit(",",1)
         order_total = int(order_total)
         # 1 -> pending, 2-> ongoing, 3-> finished
         order_status = 1
+        splitted = all_order.split(",")
+        order_done = str(';'.join([ str(splitted[x].split("x")[0]) for x in range(0,len(splitted)) ]))
         
-
         try:
-            insert_order(all_order,table_order,order_total,order_status,table_desc,priority)
+            insert_order(all_order,table_order,order_total,order_status,table_desc,order_done,priority)
         except Exception as e:
             print(e)
         
@@ -596,8 +596,21 @@ def handle_message(data):
     
     emit('sort_by_response', {'id':list(data['data'].keys()),'sorted':res})
 
-
-
+@socketio.on('save_order_done')
+@login_required
+@access_template_required(['Senior Barista'])
+def handle_order_done(data):
+    
+    order_tr = select_order_list(order_id=data['id'])[0]
+    order_index = np.array(order_tr[10].split(";"))
+    order_index[int(data['data'])] = str(data['val'])
+    order_index = ";".join(order_index)
+    print(order_index)
+    try:
+        update_order_done(order_index,order_tr[0])
+    except Exception as e:
+        print(e)
+    
 
 @socketio.event
 @login_required

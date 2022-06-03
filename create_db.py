@@ -12,11 +12,11 @@ def call_time(local='server'):
     return [date_now,date]
 
 ## For order transaction ##
-def insert_order(list_order,table_order,order_total,order_status,table_desc,priority=1):
+def insert_order(list_order,table_order,order_total,order_status,table_desc,order_done,priority=1):
     conn,cur = connection()
-    sql = """insert into order_transac(order_table,order_details,order_priority,order_total,order_status,order_date,order_desc) 
-            values({},'{}',{},{},{},'{}','{}');
-          """.format(table_order,list_order,priority,order_total,order_status,call_time()[0],table_desc)
+    sql = """insert into order_transac(order_table,order_details,order_priority,order_total,order_status,order_date,order_desc,order_done) 
+            values({},'{}',{},{},{},'{}','{}','{}');
+          """.format(table_order,list_order,priority,order_total,order_status,call_time()[0],table_desc,order_done)
     cur.execute(sql)
     conn.commit()
     cur.close()
@@ -238,4 +238,22 @@ def update_order_rndstr(order_rand_str,order_id,order_status=2):
     conn.commit()
     cur.close()
     conn.close()
+
+def update_order_done(order_done,order_id):
+    conn,cur = connection()
+    
+    sql = """
+            
+            update order_transac
+            set order_done = '{}'
+            where order_id = {} 
+            
+            """.format(order_done,order_id)
+    cur.execute(sql)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
 ## For order transaction ##

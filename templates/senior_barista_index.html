@@ -83,10 +83,24 @@
                 document.getElementById("done_"+msg.id).style.visibility='visible';
                 
                 li_btn = document.getElementById("li_"+msg.id).children
+                
                 for(let i=0;i<li_btn.length;i++){
                     temp = li_btn[i]
                     min_btn = temp.children[0].children[0].id
-                    document.getElementById(min_btn).style.visibility = "visible"
+                    py = document.getElementById(min_btn+'_m')
+                    p = py.getAttribute("style")
+                    p_num = parseInt(py.innerText.split(" ").shift())
+                    p_max = parseInt(min_btn.split("_")[2])
+                    // console.log(p == null, p_num<p_max,p_num>=1,min_btn,p_num,p_max)
+                    if(((p == null) | (p == "")) & ( (p_num >=1) & (p_num < p_max) ) ){
+                        document.getElementById(min_btn).style.visibility = "visible"
+                        document.getElementById(min_btn + "_p").style.visibility = "visible"
+                    }else if(((p == null) | (p == ""))){
+                        document.getElementById(min_btn).style.visibility = "visible"
+                        
+                    }else{
+                        document.getElementById(min_btn + "_p").style.visibility = "visible"
+                    }
                     
                 }
 
@@ -135,7 +149,6 @@
             }
             
         })
-        
         
         // Apply this when DropdownList and Status windows has been made 
         function showOnly(parameter,order=0){
@@ -289,7 +302,7 @@
 
             var temp2 = document.getElementById("table_name_"+id)
             var divClone2 = temp2.cloneNode(true);
-            console.log(temp)
+            // console.log(temp)
             all_image = []
             table_start="<table class='table'>"
             for (const li of document.querySelectorAll('#list_of_stuff_'+id+'>div')) {
@@ -387,7 +400,7 @@
 
             all_table_id = []
 
-            function min_pls_btn(min='',pls=''){
+            function min_pls_btn(min='',pls='',val=0){
                 min_btn = '<div class="count-minus"><i class="fa-solid fa-circle-minus"\
                                 onclick="minCounter(this)" id="'+min+'" style="visibility:hidden"></i></div>'
                 pls_btn = '<div class="count-add"><i class="fa-solid fa-circle-plus"\
@@ -412,13 +425,36 @@
                             
                             detail_order.forEach(function(part,index,) {
                                                 
-                                                this[index] = this[index].replace("x"," ")
-                                                total = this[index].split(" ")[0]
-                                                string_table_order += '<div class="num-cup-wrap mt-3" style="width:250px" >'
-                                                     +min_pls_btn("li_"+index+"_"+total+"_"+data[0],'')[0] + 
-                                                                  '<p id="li_'+index+'_'+total+'_'+data[0]+'_m" onclick="deleteAll(this)">'+this[index]+"</p>"
-                                                         +min_pls_btn('',"li_"+index+"_"+total+"_"+data[0]+'_p')[1]+'</div>'
-                                            },detail_order);
+                                            this[index] = this[index].replace("x"," ")
+                                            str = this[index].split(" ")
+                                            total = parseInt(str[0])
+                                            str.shift()
+                                            try{
+                                                diff = parseInt(data[10].split(";")[index])
+                                            }
+                                            catch{
+                                                diff = total
+                                            }
+                                            // console.log('Total',diff,total,parseInt(data[10].split(";")[index]))
+                                            new_shift = String(diff) + " " + str.join(" ")
+                                            this[index] = new_shift
+
+                                            if(diff > 0){
+                                                string_core = '<p id="li_'+index+'_'+total+'_'+data[0]+'_m" onclick="deleteAll(this)">'
+                                                                    +this[index]+"</p>"
+                                            }else{
+                                                string_core = '<p id="li_'+index+'_'+total+'_'+data[0]+'_m" \
+                                                                onclick="deleteAll(this)" style="text-decoration:line-through">'
+                                                                    +this[index]+"</p>"
+                                                
+                                            }
+                                            
+                                            string_table_order += '<div class="num-cup-wrap mt-3" style="width:250px" >'
+                                                    +min_pls_btn("li_"+index+"_"+total+"_"+data[0],'')[0] + 
+                                                                string_core
+                                                        +min_pls_btn('',"li_"+index+"_"+total+"_"+data[0]+'_p')[1]+'</div>'
+                                            
+                                        },detail_order);
                             string_table_order += '</div>'
                             createDiv(data);
                         }
@@ -445,6 +481,7 @@
         function minCounter(val){
             id_min = val.id + '_m'
             order_det = String(document.getElementById(id_min).innerText).split(" ")
+            order_index = val.id.split("_")[1]
             order_num = parseInt(order_det[0]) - 1
             order_det.shift()
             
@@ -453,29 +490,25 @@
             if(order_num == 0){
                 document.getElementById(val.id).style.visibility='hidden'
                 document.getElementById(id_min).style = "text-decoration:line-through"
-                
-                // if(ele.value == "0"){
-                //     ele.style="text-decoration:line-through";
-                //     ele.value = "1"
-                // }else{
-                //     ele.style.removeProperty("text-decoration");
-                //     ele.value = "0"
-                // }
             }
             
             document.getElementById(val.id+'_p').style.visibility = "visible"
-            
+
+            id = val.id.split("_").pop()
+            socket.emit('save_order_done', {data: order_index,val:order_num,id:id});
+            return false;
         }
 
         function addCounter(val){
             id_temp = val.id.split("_").slice(0,-1).join("_")
-            
+            order_index = val.id.split("_")[1]
             id_min = id_temp + "_m"
             total = parseInt(val.id.split("_")[2])
-            console.log(id_min,total)
+            // console.log(id_min,total)
             order_det = String(document.getElementById(id_min).innerText).split(" ")
             order_num = parseInt(order_det[0]) + 1
             order_det.shift()
+
             if((order_num >= 1) & (order_num < total)){
                 document.getElementById(id_min).innerText = String(order_num) +' '+ order_det.join(" ")
                 document.getElementById(id_min).style.removeProperty("text-decoration");
@@ -490,6 +523,10 @@
             }else{
                 document.getElementById(id_min).innerText = String(order_num) +' '+ order_det.join(" ")
             }
+            
+            id = val.id.split("_")[3]
+            socket.emit('save_order_done', {data: order_index,val:order_num,id:id});
+            return false;
             
         }
         
@@ -635,32 +672,57 @@
             
             id = String(val.id).split("_")[3];
             id_stat = document.getElementById('table_order_'+id).className
+            style_check = document.getElementById(val.id).getAttribute("style")
             
-            if(id_stat !== "status_take"){
+            // console.log(val,id_stat,style_check)            
+            if((id_stat == "status_take") & 
+            ((style_check == null) | (style_check == "")) ){
 
-                a = swal({
-                        title: "Please take this order first before editing!",
-                        icon: "warning",
-                        dangerMode: true,
-                    })
-            }else{
-                
                 order_det = String(val.innerText).split(" ")
+                order_num = String(val.id).split("_")[2]
+                order_det.shift()
+                btn_id = val.id.split("_")
+                btn_id.pop()
+                order_index = String(val.id).split("_")[1]
+                
+
+                val.innerText = 0 +' '+ order_det.join(" ")
+                document.getElementById(btn_id.join("_")).style.visibility='hidden'
+                document.getElementById(val.id).style = "text-decoration:line-through"
+                
+                document.getElementById(btn_id.join("_")+'_p').style.visibility = "visible"
+                
+                socket.emit('save_order_done', {data: order_index,val:0,id:id});
+                return false;
+
+            }else if((id_stat == "status_take") &
+                ((style_check == 'text-decoration:line-through') | (style_check == 'text-decoration: line-through;'))){
+
+                order_det = String(val.innerText).split(" ")
+                order_index = String(val.id).split("_")[1]
+                order_max = String(val.id).split("_")[2]
+                total_order = $("div#li_"+id+" > div").length
+
                 order_num = 0
                 order_det.shift()
                 btn_id = val.id.split("_")
                 btn_id.pop()
                 
-                val.innerText = String(order_num) +' '+ order_det.join(" ")
-
-                if(order_num == 0){
-                    document.getElementById(btn_id.join("_")).style.visibility='hidden'
-                    document.getElementById(val.id).style = "text-decoration:line-through"
-                    
-                }
+                val.innerText = String(order_max) +' '+ order_det.join(" ")
+                document.getElementById(btn_id.join("_")+'_p').style.visibility='hidden'
+                document.getElementById(val.id).style.removeProperty("text-decoration");
+                document.getElementById(btn_id.join("_")).style.visibility = "visible"
+                socket.emit('save_order_done', {data: order_index,val:order_max,id:id});
+                return false;
                 
-                document.getElementById(btn_id.join("_")+'_p').style.visibility = "visible"
+            }else{
+                a = swal({
+                        title: "Please take this order first before editing!",
+                        icon: "warning",
+                        dangerMode: true,
+                    })
             }
+
         }
         
         // function order(){
