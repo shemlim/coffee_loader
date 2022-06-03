@@ -501,10 +501,12 @@ def summary_report_func(df,menu_df):
 
     return [summary,summary_report]
 
-@app.route("/admin_record/<name>",methods=['GET'])
+@app.route("/admin_record",methods=['GET'])
 @login_required
 @access_template_required(['Admin'])
-def admin_order(name):
+def admin_order():
+    name = request.args.get("name") if request.args.get("name") != None else "monthly"
+    
     if name == 'monthly':
         now = datetime.now().today()
         min = datetime.strftime(now,"%Y-%m-01")
@@ -520,7 +522,8 @@ def admin_order(name):
         summary.columns = [x.replace("menu_","") for x in summary.columns]
 
     return render_template('admin_record.html',min=min,max=max,order_tr=order_tr,
-                            summary=summary,summary_report=summary_report)
+                        summary=summary,summary_report=summary_report)
+    
 # Function for admin #
 
 # Function Live load #

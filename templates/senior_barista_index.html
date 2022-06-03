@@ -630,6 +630,38 @@
             
         
         }
+        
+        function deleteAll(val){
+            
+            id = String(val.id).split("_")[3];
+            id_stat = document.getElementById(id).className
+            if(id_stat !== "status_take"){
+
+                a = swal({
+                        title: "Please take this order first before editing!",
+                        icon: "warning",
+                        dangerMode: true,
+                    })
+            }else{
+                
+                order_det = String(val.innerText).split(" ")
+                order_num = 0
+                order_det.shift()
+                btn_id = val.id.split("_")
+                btn_id.pop()
+                
+                val.innerText = String(order_num) +' '+ order_det.join(" ")
+
+                if(order_num == 0){
+                    document.getElementById(btn_id.join("_")).style.visibility='hidden'
+                    document.getElementById(val.id).style = "text-decoration:line-through"
+                    
+                }
+                
+                document.getElementById(btn_id.join("_")+'_p').style.visibility = "visible"
+            }
+        }
+        
         // function order(){
         //     // var arr_word = Array.from(document.getElementsByClassName("table_number"))
         //     var status_parameter = ['status_pending','status_take','status_delete','status_done']
@@ -708,5 +740,4 @@
         <!-- Loop until here -->
         
 </body>
-
 </html>
